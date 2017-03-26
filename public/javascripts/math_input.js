@@ -1,5 +1,5 @@
 /**
-    JS code for handling math formula
+* JS code for handling math formula
 */
 
 $(function() {
