@@ -24,4 +24,8 @@ public class HomeController extends Controller {
     public Result login() {
         return ok(login.render());
     }
+
+    public Result chat() {
+        return ok(chat.render());
+    }
 }
