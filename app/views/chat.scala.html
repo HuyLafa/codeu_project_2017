@@ -2,11 +2,19 @@
 * The chat interface
 *@
 
-@main("Log In") {
+@main("Chat") {
 <div class="container">
-    <p>Type math here: <span id="math-field" class="mq-root-block" style="text-align: center;"></span></p>
-    <p>LaTeX of what you typed: <span id="latex"></span></p>
+    <div id="wrap" class="row">
+        <p>Enter math formula</p>
+        <div class="col-xs-8 offset-xs-2" id="mathquill"></div>
+    </div>
+    <form id="answer-form" method="POST">
+    </form>
 </div>
+
+@keyboard()
 
 <script type="text/javascript" src='@routes.Assets.versioned("javascripts/math_input.js")'></script>
 }
+
+
