@@ -180,7 +180,6 @@
 }
 
 .message_write textarea.form-control {
-  height: 70px;
   padding: 10px;
 }
 .chat_bottom {
@@ -199,4 +198,12 @@
   background: #428bca none repeat scroll 0 0;
   color: #fff;
   cursor:pointer;
+}
+
+#mathquill {
+    width: 100%;
+    background-color: white;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 24px;
 }
