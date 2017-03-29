@@ -477,3 +477,30 @@ body {
 	background-color: #1CA347;
 	border-color: #1CA347;
 }
+
+.textbox, .textbox:hover {
+    position: absolute;
+    bottom: 0px;
+    left: 8%;
+    right: 8%;
+    width: 100%;
+    background: #fafafa;
+    border: none;
+    outline: none;
+    padding-left: 2%;
+    padding-right: 2%;
+    padding-top: 2%;
+    color: #666;
+    font-weight: 400;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    overflow: hidden;
+    resize: none;
+    z-index: 200;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    transition: all .4s cubic-bezier(0.565, -0.260, 0.255, 1.410);
+}
+.textbox:focus {
+    height: 300px;
+    box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
+}

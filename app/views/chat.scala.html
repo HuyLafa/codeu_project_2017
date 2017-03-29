@@ -4,17 +4,22 @@
 
 @main("Chat") {
 <div class="container">
-    <div id="wrap" class="row">
-        <p>Enter math formula</p>
-        <div class="col-xs-8 offset-xs-2" id="mathquill"></div>
+    <div id="wrap" class="row navbar navbar-fixed-bottom">
+        <div class="col-xs-10">
+            <div id="mathquill" class="textbox"></div>
+        </div>
     </div>
     <form id="answer-form" method="POST">
     </form>
+
 </div>
 
 @keyboard()
 
 <script type="text/javascript" src='@routes.Assets.versioned("javascripts/math_input.js")'></script>
+<script type="text/javascript">
+
+</script>
 }
 
 
