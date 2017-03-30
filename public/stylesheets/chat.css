@@ -411,3 +411,20 @@ ul.errorlist.nonfield {
     display: block;
   }
 }
+
+/* Overwrite default WolframAlpha widget size
+ * to make the widget responsive
+ */
+.WolframAlphaWidget {
+    width: 100% !important;
+}
+
+.WolframAlphaWidget table {
+    width: 100% !important;
+}
+
+.WolframAlphaWidget input {
+    width: 100%;
+    text-align: center;
+    font-size: 16px !important;
+}
