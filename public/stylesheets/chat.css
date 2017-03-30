@@ -181,6 +181,7 @@
 
 .message_write textarea.form-control {
   padding: 10px;
+  height: 52px;
 }
 .chat_bottom {
   float: left;
