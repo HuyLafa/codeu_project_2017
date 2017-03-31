@@ -7,13 +7,13 @@ $(document).ready( function() {
   setupMathInput();
   // switch between normal text and math input
   $('#typeMath').change( function() {
-	$('#inputArea').html("");
+	$('#input-area').html("");
 	if (this.checked) {
-		$textarea = $("<div id='mathquill'></div>").appendTo('#inputArea');
+		$textarea = $("<div id='mathquill'></div>").appendTo('#input-area');
 		setupMathInput();
 	}
 	else {
-		$textarea = $("<textarea class='form-control' placeholder='type a message'></textarea>").appendTo('#inputArea');
+		$textarea = $("<textarea class='form-control' placeholder='type a message'></textarea>").appendTo('#input-area');
 		closeKeyboard();
 	}
   });

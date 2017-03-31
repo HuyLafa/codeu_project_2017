@@ -31,14 +31,14 @@
 .search-query:focus + button {
   z-index: 3;
 }
-.all_conversation button {
+.all-conversation button {
   background: #f5f3f3 none repeat scroll 0 0;
   border: 1px solid #dddddd;
   height: 38px;
   text-align: left;
   width: 100%;
 }
-.all_conversation i {
+.all-conversation i {
   background: #e9e7e8 none repeat scroll 0 0;
   border-radius: 100px;
   color: #636363;
@@ -48,74 +48,74 @@
   text-align: center;
   width: 30px;
 }
-.all_conversation .caret {
+.all-conversation .caret {
   bottom: 0;
   margin: auto;
   position: absolute;
   right: 15px;
   top: 0;
 }
-.all_conversation .dropdown-menu {
+.all-conversation .dropdown-menu {
   background: #f5f3f3 none repeat scroll 0 0;
   border-radius: 0;
   margin-top: 0;
   padding: 0;
   width: 100%;
 }
-.all_conversation ul li {
+.all-conversation ul li {
   border-bottom: 1px solid #dddddd;
   line-height: normal;
   width: 100%;
 }
-.all_conversation ul li a:hover {
+.all-conversation ul li a:hover {
   background: #dddddd none repeat scroll 0 0;
   color:#333;
 }
-.all_conversation ul li a {
+.all-conversation ul li a {
   color: #333;
   line-height: 30px;
   padding: 3px 20px;
 }
-.member_list .chat-body {
+.member-list .chat-body {
   margin-left: 47px;
   margin-top: 0;
 }
 .top_nav {
   overflow: visible;
 }
-.member_list .contact_sec {
+.member-list .contact-sec {
   margin-top: 3px;
 }
-.member_list li {
+.member-list li {
   padding: 6px;
 }
-.member_list ul {
+.member-list ul {
   border: 1px solid #dddddd;
 }
 .chat-img img {
   height: 34px;
   width: 34px;
 }
-.member_list li {
+.member-list li {
   border-bottom: 1px solid #dddddd;
   padding: 6px;
 }
-.member_list li:last-child {
+.member-list li:last-child {
   border-bottom:none;
 }
-.member_list {
+.member-list {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
 }
-.sub_menu_ {
+.sub-menu {
   background: #e8e6e7 none repeat scroll 0 0;
   left: 100%;
   max-width: 233px;
   position: absolute;
   width: 100%;
 }
-.sub_menu_ {
+.sub-menu {
   background: #f5f3f3 none repeat scroll 0 0;
   border: 1px solid rgba(0, 0, 0, 0.15);
   display: none;
@@ -126,14 +126,14 @@
   top: 0;
   width: 100%;
 }
-.all_conversation ul li:hover .sub_menu_ {
+.all-conversation ul li:hover .sub-menu {
   display: block;
 }
-.new_message_head button {
+.new-message-head button {
   background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
   border: medium none;
 }
-.new_message_head {
+.new-message-head {
   background: #f5f3f3 none repeat scroll 0 0;
   float: left;
   font-size: 13px;
@@ -141,49 +141,53 @@
   padding: 18px 10px;
   width: 100%;
 }
-.message_section {
+.message-section {
   border: 1px solid #dddddd;
 }
-.chat_area {
+.main-section .container {
+  width: 100%;
+  padding: 0;
+}
+.chat-area {
   float: left;
   height: 500px;
   overflow-x: hidden;
   overflow-y: auto;
   width: 100%;
 }
-.chat_area li {
+.chat-area li {
   padding: 14px 14px 0;
 }
-.chat_area li .chat-img1 img {
+.chat-area li .chat-img1 img {
   height: 40px;
   width: 40px;
 }
-.chat_area .chat-body1 {
+.chat-area .chat-body1 {
   margin-left: 50px;
 }
 .chat-body1 p {
   background: #fbf9fa none repeat scroll 0 0;
   padding: 10px;
 }
-.chat_area .admin_chat .chat-body1 {
+.chat-area .admin_chat .chat-body1 {
   margin-left: 0;
   margin-right: 50px;
 }
-.chat_area li:last-child {
+.chat-area li:last-child {
   padding-bottom: 10px;
 }
-.message_write {
+.message-write {
   background: #f5f3f3 none repeat scroll 0 0;
   float: left;
   padding: 15px;
   width: 100%;
 }
 
-.message_write textarea.form-control {
+.message-write textarea.form-control {
   padding: 10px;
   height: 52px;
 }
-.chat_bottom {
+.chat-bottom {
   float: left;
   margin-top: 13px;
   width: 100%;
@@ -191,11 +195,11 @@
 .upload_btn {
   color: #777777;
 }
-.sub_menu_ > li a, .sub_menu_ > li {
+.sub-menu > li a, .sub-menu > li {
   float: left;
   width:100%;
 }
-.member_list li:hover {
+.member-list li:hover {
   background: #428bca none repeat scroll 0 0;
   color: #fff;
   cursor:pointer;
