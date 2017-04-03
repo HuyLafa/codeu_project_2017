@@ -21,7 +21,7 @@ $(document).ready( function() {
 
 var setupMathInput = function() {
   // math input configuration
-  var isMobile = window.matchMedia("only screen and (max-width: 760px)");
+  var isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
   var MQElement = document.getElementById("mathquill");
 
   var MQ = MathQuill.getInterface(2); // for backcompat
@@ -62,12 +62,11 @@ var setupMathInput = function() {
         }
       }
 
-//      if(isMobile) {
-//        mathField.blur();
-//      } else {
-//        mathField.focus();
-//      }
-      mathField.focus();
+      if(isMobile) {
+        mathField.blur();
+      } else {
+        mathField.focus();
+      }
     }
   });
 
