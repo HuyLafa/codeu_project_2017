@@ -28,7 +28,7 @@ var setupMathInput = function() {
 
   var mathField = MQ.MathField(MQElement, {});
 
-  $('#keyboard .keypad:not(.default)').hide();
+//  $('#keyboard .keypad:not(.default)').hide();
   $('#keyboard .key').click( function(event) {
     event.preventDefault();
 
@@ -43,9 +43,8 @@ var setupMathInput = function() {
         mathField.keystroke($(this).data('content'));
       }
       else if($(this).data('action') == 'switch-keys') {
-        console.log("'#keyboard .keypad:not(.' + $(this).data('content') + ')'");
-        $('#keyboard .keypad:not(.' + $(this).data('content') + ')').hide();
-        $('#keyboard .keypad.' + $(this).data('content')).show();
+        $(this).parents('#keyboard').switchClass("trig", $(this).data("content"));
+        $(this).parents('#keyboard').switchClass("std", $(this).data("content"));
       }
       else if($(this).data('action') == 'keyboard-hide'){
         closeKeyboard();
@@ -63,11 +62,12 @@ var setupMathInput = function() {
         }
       }
 
-      if(isMobile) {
-        mathField.blur();
-      } else {
-        mathField.focus();
-      }
+//      if(isMobile) {
+//        mathField.blur();
+//      } else {
+//        mathField.focus();
+//      }
+      mathField.focus();
     }
   });
 

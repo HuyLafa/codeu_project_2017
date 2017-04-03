@@ -328,6 +328,23 @@
   display: none;
 }
 
+#keyboard.std .keypad.std {
+  display: block;
+}
+
+#keyboard.trig .keypad.trig {
+  display: block;
+}
+
+#keyboard.std .keypad.trig {
+  display: none;
+}
+
+#keyboard.trig .keypad.std {
+  display: none;
+}
+
+
 #keyboard .key.col-xs-4.special2 {
     background: #5482a9 !important;
     color: white !important;
