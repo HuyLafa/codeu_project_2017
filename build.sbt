@@ -9,8 +9,12 @@ scalaVersion := "2.11.7"
 libraryDependencies ++= Seq(
   javaJdbc,
   cache,
-  javaWs
+  javaWs,
+  "org.xerial" % "sqlite-jdbc" % "3.8.6",
+  "com.typesafe.play" %% "play-slick" % "2.0.0"
 )
+
+libraryDependencies += evolutions
 
 
 fork in run := false
