@@ -1,3 +1,4 @@
+@(message: String = "")
 @*
 * Simple Bootstrap login page
 * Source: https://github.com/HuyLafa/MathTutor
@@ -5,7 +6,7 @@
 
 @main("Log In") {
 <div class="container">
-    <div class="row">
+    <div class="row login-box">
         <div class="col-md-6 col-md-offset-3">
             <div class="panel panel-login">
                 <div class="panel-heading">
@@ -54,7 +55,7 @@
                                     </div>
                                 </div>
                             </form>
-                            <form id="register-form" action="http://phpoll.com/register/process" method="post"
+                            <form id="register-form" action="@routes.LoginController.createAccount()" method="post"
                                   role="form" style="display: none;">
                                 <div class="form-group">
                                     <input type="text" name="username" id="username" tabindex="1" class="form-control"

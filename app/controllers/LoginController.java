@@ -1,9 +1,13 @@
 package controllers;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.mvc.Controller;
 import play.mvc.Result;
-import views.html.chat;
+import play.data.Form;
+import play.data.DynamicForm;
+import play.api.mvc.Session;
+import views.html.login;
 
 /**
  * Created by HuyNguyen on 4/4/17.
@@ -12,11 +16,12 @@ import views.html.chat;
 public class LoginController extends Controller {
 
   public Result display() {
-    return ok(chat.render());
+    return ok(login.render());
   }
 
 
   public Result createAccount() {
-    return redirect(routes.ChatController.chat());
+    DynamicForm dynamicForm =
+    return ok("hello");
   }
 }
