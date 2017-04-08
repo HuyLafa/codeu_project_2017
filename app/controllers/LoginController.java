@@ -16,12 +16,11 @@ import views.html.login;
 public class LoginController extends Controller {
 
   public Result display() {
-    return ok(login.render());
+    return ok(login.render(""));
   }
 
 
   public Result createAccount() {
-    DynamicForm dynamicForm =
     return ok("hello");
   }
 }
