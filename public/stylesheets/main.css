@@ -42,6 +42,9 @@ a:hover {
     color: #a94442 !important;
     font-weight: 600;
 }
+.alert p {
+  text-align: center;
+}
 
 .breadcrumb {
   background: #fdfdfd !important;
