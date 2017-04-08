@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Backing class for the User data form.
+ * Created by HuyNguyen on 4/8/17.
  */
-public class UserFormData {
+public class LoginFormData {
 
   public String username = "";
 
@@ -16,11 +16,11 @@ public class UserFormData {
   /**
    * Default constructor. Required for form instantiation.
    */
-  public UserFormData() {
+  public LoginFormData() {
 
   }
 
-  public UserFormData(String username, String password) {
+  public LoginFormData(String username, String password) {
     this.username = username;
     this.password = password;
   }
@@ -43,15 +43,10 @@ public class UserFormData {
     if (username == null || username.length() == 0) {
       errors.add(new ValidationError("name", "Username cannot be empty."));
     }
-//    else if (isPasswordInValid(password)) {
-//      errors.add(new ValidationError("password", "Password does not meet requirements."));
-//    }
+    if (password == null || password.length() == 0) {
+      errors.add(new ValidationError("password", "Password cannot be empty."));
+    }
     return (errors.size() > 0) ? errors : null;
   }
 
-  public boolean isPasswordInValid(String password) {
-    if (password == null || password.length() < 5) return true;
-    // todo. add more password requirements?
-    return false;
-  }
 }

@@ -450,3 +450,7 @@ ul.errorlist.nonfield {
     text-align: center;
     font-size: 16px !important;
 }
+
+.hello {
+  text-align: center;
+}

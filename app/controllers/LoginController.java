@@ -9,6 +9,7 @@ import play.data.FormFactory;
 import play.data.Form;
 import views.html.login;
 import views.formdata.UserFormData;
+import views.formdata.LoginFormData;
 
 import codeu.chat.client.View;
 import codeu.chat.util.RemoteAddress;
@@ -33,16 +34,15 @@ public class LoginController extends Controller {
   }
 
   public Result createAccount() {
+    // todo. check duplicate account name
     Form<UserFormData> formData = formFactory.form(UserFormData.class).bindFromRequest();
     if (formData.hasErrors()) {
-      // don't call formData.get() when the are errors, pass 'null' to helpers instead
-      System.out.println(formData.error("name"));
-      System.out.println(formData.error("password"));
+      // don't call formData.get() when there are errors, pass 'null' to helpers instead
       return badRequest(login.render("errors with log-in information", false));
     } else {
       // extract the form data
       UserFormData userForm = formData.get();
-      String username = userForm.name;
+      String username = userForm.username;
       String password = userForm.password;
       clientContext.user.addUser(username);
       return ok(login.render("Create account successful. Please log in.", true));
@@ -68,6 +68,23 @@ public class LoginController extends Controller {
       System.out.println("ERROR: Exception setting up client. Check log for details.");
       LOG.error(ex, "Exception setting up client.");
       return badRequest(login.render("Exception setting up client", false));
+    }
+  }
+
+
+  public Result login() {
+    Form<LoginFormData> formData = formFactory.form(LoginFormData.class).bindFromRequest();
+    if (formData.hasErrors()) {
+      return badRequest(login.render("Username and password cannot be empty.", false));
+    } else {
+      // extract the form data
+      LoginFormData loginForm = formData.get();
+      String username = loginForm.username;
+      String password = loginForm.password;
+      clientContext.user.signInUser(username);
+      session().clear();
+      session("username", username);
+      return redirect(routes.ChatController.index());
     }
   }
 }
