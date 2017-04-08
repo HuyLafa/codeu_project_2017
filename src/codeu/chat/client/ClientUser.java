@@ -29,7 +29,7 @@ public final class ClientUser {
   private final static Logger.Log LOG = Logger.newLog(ClientUser.class);
 
   private static final Collection<Uuid> EMPTY = Arrays.asList(new Uuid[0]);
-  private final Controller controller;
+  private final BackendController controller;
   private final View view;
 
   private User current = null;
@@ -39,7 +39,7 @@ public final class ClientUser {
   // This is the set of users known to the server, sorted by name.
   private Store<String, User> usersByName = new Store<>(String.CASE_INSENSITIVE_ORDER);
 
-  public ClientUser(Controller controller, View view) {
+  public ClientUser(BackendController controller, View view) {
     this.controller = controller;
     this.view = view;
   }

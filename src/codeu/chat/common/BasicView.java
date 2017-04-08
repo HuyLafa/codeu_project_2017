@@ -24,7 +24,7 @@ import codeu.chat.util.Uuid;
 
 // BASIC VIEW
 //
-//   The view component in the Model-View-Controller pattern. This component
+//   The view component in the Model-View-BackendController pattern. This component
 //   is used to read information from the model where the model is the current
 //   state of the server. Data returned from the view should be treated as
 //   read only data as manipulating any data returned from the view may

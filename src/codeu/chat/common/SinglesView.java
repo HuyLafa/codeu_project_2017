@@ -21,7 +21,7 @@ import codeu.chat.util.Uuid;
 
 // SINGLES VIEW
 //
-// A view as part of the Model-View-Controller pattern. This view is
+// A view as part of the Model-View-BackendController pattern. This view is
 // responsible for allowing single value reading from the model.
 public interface SinglesView {
 

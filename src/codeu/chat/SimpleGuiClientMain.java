@@ -16,7 +16,7 @@ package codeu.chat;
 
 import java.io.IOException;
 
-import codeu.chat.client.Controller;
+import codeu.chat.client.BackendController;
 import codeu.chat.client.simplegui.ChatSimpleGui;
 import codeu.chat.client.View;
 import codeu.chat.util.Logger;
@@ -47,7 +47,7 @@ final class SimpleGuiClientMain {
     try (
       final ConnectionSource source = new ClientConnectionSource(address.host, address.port)
     ) {
-      final Controller controller = new Controller(source);
+      final BackendController controller = new BackendController(source);
       final View view = new View(source);
 
       LOG.info("Creating client...");
@@ -60,7 +60,7 @@ final class SimpleGuiClientMain {
     }
   }
 
-  private static void runClient(Controller controller, View view) {
+  private static void runClient(BackendController controller, View view) {
 
     final ChatSimpleGui chatSimpleGui = new ChatSimpleGui(controller, view);
 

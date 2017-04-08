@@ -17,7 +17,7 @@ package codeu.chat.client.commandline;
 import java.util.Scanner;
 
 import codeu.chat.client.ClientContext;
-import codeu.chat.client.Controller;
+import codeu.chat.client.BackendController;
 import codeu.chat.client.View;
 import codeu.chat.common.ConversationSummary;
 import codeu.chat.util.Logger;
@@ -36,7 +36,7 @@ public final class Chat {
   private final ClientContext clientContext;
 
   // Constructor - sets up the Chat Application
-  public Chat(Controller controller, View view) {
+  public Chat(BackendController controller, View view) {
     clientContext = new ClientContext(controller, view);
   }
 

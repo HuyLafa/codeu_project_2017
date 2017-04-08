@@ -19,7 +19,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 import codeu.chat.client.ClientContext;
-import codeu.chat.client.Controller;
+import codeu.chat.client.BackendController;
 import codeu.chat.client.View;
 import codeu.chat.util.Logger;
 
@@ -33,7 +33,7 @@ public final class ChatSimpleGui {
   private final ClientContext clientContext;
 
   // Constructor - sets up the Chat Application
-  public ChatSimpleGui(Controller controller, View view) {
+  public ChatSimpleGui(BackendController controller, View view) {
     clientContext = new ClientContext(controller, view);
   }
 

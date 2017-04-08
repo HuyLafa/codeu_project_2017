@@ -33,7 +33,7 @@ public final class ClientMessage {
   private final static int MESSAGE_MAX_COUNT = 100;
   private final static int MESSAGE_FETCH_COUNT = 5;
 
-  private final Controller controller;
+  private final BackendController controller;
   private final View view;
 
   private Message current = null;
@@ -46,7 +46,7 @@ public final class ClientMessage {
   private final ClientUser userContext;
   private final ClientConversation conversationContext;
 
-  public ClientMessage(Controller controller, View view, ClientUser userContext,
+  public ClientMessage(BackendController controller, View view, ClientUser userContext,
                        ClientConversation conversationContext) {
     this.controller = controller;
     this.view = view;
