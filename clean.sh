@@ -16,4 +16,4 @@
 
 set -e
 
-rm -rf ./bin/*
+rm -rf ./target/scala-2.11/classes/codeu/*

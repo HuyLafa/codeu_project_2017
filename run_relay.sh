@@ -27,5 +27,5 @@ if [ ! -f "$TEAM_FILE" ] ; then
   exit 1
 fi
 
-cd './bin'
+cd './target/scala-2.11/classes/'
 java codeu.chat.RelayMain "$PORT" "$TEAM_FILE"

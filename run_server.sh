@@ -24,7 +24,7 @@ if [[ "TEAM_ID" == "" || "$TEAM_SECRET" == "" || "$PORT" == "" ]] ; then
   exit 1
 fi
 
-cd './bin'
+cd './target/scala-2.11/classes/'
 if [ "$RELAY_ADDRESS" == "" ] ; then
   java codeu.chat.ServerMain \
       "$TEAM_ID" \
