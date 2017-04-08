@@ -20,7 +20,7 @@ public final class ClientContext {
   public final ClientConversation conversation;
   public final ClientMessage message;
 
-  public ClientContext(BackendController controller, View view) {
+  public ClientContext(Controller controller, View view) {
     user = new ClientUser(controller, view);
     conversation = new ClientConversation(controller, view, user);
     message = new ClientMessage(controller, view, user, conversation);

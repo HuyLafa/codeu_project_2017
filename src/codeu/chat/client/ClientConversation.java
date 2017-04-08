@@ -29,7 +29,7 @@ public final class ClientConversation {
 
   private final static Logger.Log LOG = Logger.newLog(ClientConversation.class);
 
-  private final BackendController controller;
+  private final Controller controller;
   private final View view;
 
   private ConversationSummary currentSummary = null;
@@ -45,7 +45,7 @@ public final class ClientConversation {
   private Store<String, ConversationSummary> summariesSortedByTitle =
       new Store<>(String.CASE_INSENSITIVE_ORDER);
 
-  public ClientConversation(BackendController controller, View view, ClientUser userContext) {
+  public ClientConversation(Controller controller, View view, ClientUser userContext) {
     this.controller = controller;
     this.view = view;
     this.userContext = userContext;

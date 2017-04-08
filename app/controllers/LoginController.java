@@ -3,7 +3,7 @@ package controllers;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import play.mvc.Controller;
+import codeu.chat.client.Controller;
 import play.mvc.Result;
 import play.data.FormFactory;
 import play.data.Form;
@@ -16,14 +16,13 @@ import codeu.chat.util.RemoteAddress;
 import codeu.chat.util.connections.ClientConnectionSource;
 import codeu.chat.util.connections.ConnectionSource;
 import codeu.chat.util.Logger;
-import codeu.chat.client.BackendController;
 import codeu.chat.client.ClientContext;
 
 /**
  * Created by HuyNguyen on 4/4/17.
  */
 @Singleton
-public class LoginController extends Controller {
+public class LoginController extends play.mvc.Controller {
 
   private final static Logger.Log LOG = Logger.newLog(LoginController.class);
   private ClientContext clientContext;
@@ -58,7 +57,7 @@ public class LoginController extends Controller {
 
     try (final ConnectionSource source = new ClientConnectionSource(address.host, address.port)) {
       // initialize the controller and view based on connection source
-      final BackendController controller = new BackendController(source);
+      final Controller controller = new Controller(source);
       final View view = new View(source);
       clientContext = new ClientContext(controller, view);
       LOG.info("Creating client...");

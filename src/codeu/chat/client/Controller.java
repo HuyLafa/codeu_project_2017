@@ -25,13 +25,13 @@ import codeu.chat.util.Uuid;
 import codeu.chat.util.connections.Connection;
 import codeu.chat.util.connections.ConnectionSource;
 
-public class BackendController implements BasicController {
+public class Controller implements BasicController {
 
-  private final static Logger.Log LOG = Logger.newLog(BackendController.class);
+  private final static Logger.Log LOG = Logger.newLog(Controller.class);
 
   private final ConnectionSource source;
 
-  public BackendController(ConnectionSource source) {
+  public Controller(ConnectionSource source) {
     this.source = source;
   }
 

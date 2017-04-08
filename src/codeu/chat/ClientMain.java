@@ -17,7 +17,7 @@ package codeu.chat;
 import java.io.IOException;
 import java.util.Scanner;
 
-import codeu.chat.client.BackendController;
+import codeu.chat.client.Controller;
 import codeu.chat.client.commandline.Chat;
 import codeu.chat.client.View;
 import codeu.chat.util.Logger;
@@ -44,7 +44,7 @@ final class ClientMain {
     final RemoteAddress address = RemoteAddress.parse(args[0]);
 
     final ConnectionSource source = new ClientConnectionSource(address.host, address.port);
-    final BackendController controller = new BackendController(source);
+    final Controller controller = new Controller(source);
     final View view = new View(source);
 
     LOG.info("Creating client...");
