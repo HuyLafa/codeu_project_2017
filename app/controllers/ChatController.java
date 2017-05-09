@@ -6,7 +6,6 @@ import javax.inject.Singleton;
 
 import views.html.chat;
 
-@Singleton
 public class ChatController extends Controller {
 
   public Result index() {

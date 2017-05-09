@@ -1,9 +1,7 @@
 package controllers;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-import codeu.chat.client.Controller;
 import play.mvc.Result;
 import play.data.FormFactory;
 import play.data.Form;
@@ -11,6 +9,13 @@ import views.html.login;
 import views.formdata.UserFormData;
 import views.formdata.LoginFormData;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import play.db.Database;
+
+import codeu.chat.client.Controller;
 import codeu.chat.client.View;
 import codeu.chat.util.RemoteAddress;
 import codeu.chat.util.connections.ClientConnectionSource;
@@ -21,12 +26,15 @@ import codeu.chat.client.ClientContext;
 /**
  * Created by HuyNguyen on 4/4/17.
  */
-@Singleton
 public class LoginController extends play.mvc.Controller {
 
   private final static Logger.Log LOG = Logger.newLog(LoginController.class);
   private ClientContext clientContext;
+  private Database db;
   @Inject FormFactory formFactory;
+
+  @Inject
+  public LoginController(Database db) { this.db = db; }
 
   public Result display() {
     return ok(login.render("", true));
@@ -71,7 +79,7 @@ public class LoginController extends play.mvc.Controller {
   }
 
 
-  public Result login() {
+  public Result login() throws SQLException {
     Form<LoginFormData> formData = formFactory.form(LoginFormData.class).bindFromRequest();
     if (formData.hasErrors()) {
       return badRequest(login.render("Username and password cannot be empty.", false));
@@ -80,10 +88,26 @@ public class LoginController extends play.mvc.Controller {
       LoginFormData loginForm = formData.get();
       String username = loginForm.username;
       String password = loginForm.password;
-      clientContext.user.signInUser(username);
-      session().clear();
-      session("username", username);
-      return redirect(routes.ChatController.index());
+
+      // database query
+      Connection conn = db.getConnection();
+      String query = "SELECT password FROM Users WHERE Username = ?";
+      PreparedStatement getPassword = conn.prepareStatement(query);
+      getPassword.setString(1, username);
+      ResultSet queryResult = getPassword.executeQuery();
+
+      // if passwords match, redirect to chat page
+      if (queryResult.next()) {
+        String savedPassword = queryResult.getString("PASSWORD");
+        if (password.equals(savedPassword)) {
+          session().clear();
+          session("username", username);
+          return redirect(routes.ChatController.index());
+        }
+      }
+
+      // if no username or wrong password, display error message
+      return badRequest(login.render("Incorrect username or password", false));
     }
   }
 }

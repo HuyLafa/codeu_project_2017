@@ -11,7 +11,8 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   "org.xerial" % "sqlite-jdbc" % "3.8.6",
-  "com.typesafe.play" %% "play-slick" % "2.0.0"
+  "com.typesafe.play" %% "play-slick" % "2.0.0",
+  evolutions
 )
 
 libraryDependencies += evolutions
