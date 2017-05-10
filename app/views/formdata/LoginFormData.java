@@ -8,9 +8,7 @@ import java.util.ArrayList;
  * Created by HuyNguyen on 4/8/17.
  */
 public class LoginFormData {
-
   public String username = "";
-
   public String password = "";
 
   /**
