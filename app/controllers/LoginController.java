@@ -28,8 +28,6 @@ import codeu.chat.client.ClientContext;
  */
 public class LoginController extends play.mvc.Controller {
 
-  private final static Logger.Log LOG = Logger.newLog(LoginController.class);
-  private ClientContext clientContext;
   private Database db;
   @Inject FormFactory formFactory;
 
@@ -51,7 +49,6 @@ public class LoginController extends play.mvc.Controller {
       UserFormData userForm = formData.get();
       String username = userForm.username;
       String password = userForm.password;
-//      clientContext.user.addUser(username);
 
       // database query
       Connection conn = db.getConnection();
@@ -91,8 +88,6 @@ public class LoginController extends play.mvc.Controller {
       // initialize the controller and view based on connection source
       final Controller controller = new Controller(source);
       final View view = new View(source);
-      clientContext = new ClientContext(controller, view);
-      LOG.info("Creating client...");
 
       // if user already logged in
       if (session("username") != null) {
@@ -103,7 +98,6 @@ public class LoginController extends play.mvc.Controller {
 
     } catch (Exception ex) {
       System.out.println("ERROR: Exception setting up client. Check log for details.");
-      LOG.error(ex, "Exception setting up client.");
       flash("error", "Exception setting up client.");
       return badRequest(login.render());
     }

@@ -25,7 +25,27 @@ $(function() {
       this.submit();
     }
     else {
-      alert("Passwords do not match.");
+      addErrorMessage("Passwords do not match");
     }
   });
 });
+
+
+function addSuccessMessage(message) {
+  var htmlCode =
+    "<div class='alert alert-dismissible alert-success'>" +
+    "<button type='button' class='close' data-dismiss='alert'> x </button>" +
+    "<p>{0}</p>".format(message) +
+    "</div>";
+    $('.body').prepend(htmlCode);
+}
+
+
+function addErrorMessage(message) {
+  var htmlCode =
+    "<div class='alert alert-dismissible alert-danger'>" +
+    "<button type='button' class='close' data-dismiss='alert'> x </button>" +
+    `<p>${message}</p>` +
+    "</div>";
+    $('.body').prepend(htmlCode);
+}
