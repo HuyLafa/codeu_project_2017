@@ -1,9 +1,9 @@
 # --- !Ups
 
-CREATE TABLE USERS ("Id" INTEGER PRIMARY KEY, "Username" VARCHAR NOT NULL, "Password" VARCHAR NOT NULL);
+CREATE TABLE users ('id' INTEGER PRIMARY KEY, 'username' VARCHAR NOT NULL, 'password' VARCHAR NOT NULL);
 
-INSERT INTO USERS ("Username", "Password") VALUES ("admin", "123456");
+INSERT INTO users ('username', 'password') VALUES ("admin", "123456");
 
 
 # --- !Downs
-DROP TABLE PERIODIC_ELEMENTS;
+DROP TABLE users;
