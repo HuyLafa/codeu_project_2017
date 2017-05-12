@@ -4,7 +4,7 @@ import javax.inject.Inject;
 
 import play.mvc.Result;
 import play.data.FormFactory;
-import play.data.Form;
+import play.data.DynamicForm;
 import views.html.login;
 import views.formdata.UserFormData;
 import views.formdata.LoginFormData;
@@ -39,16 +39,15 @@ public class LoginController extends play.mvc.Controller {
   }
 
   public Result createAccount() throws SQLException {
-    Form<UserFormData> formData = formFactory.form(UserFormData.class).bindFromRequest();
+    DynamicForm formData = formFactory.form().bindFromRequest();
     if (formData.hasErrors()) {
       // don't call formData.get() when there are errors, pass 'null' to helpers instead
       flash("error", "Errors with log-in information");
       return badRequest(login.render());
     } else {
       // extract the form data
-      UserFormData userForm = formData.get();
-      String username = userForm.username;
-      String password = userForm.password;
+      String username = formData.get("username");
+      String password = formData.get("password");
 
       // database query
       Connection conn = db.getConnection();
@@ -82,38 +81,24 @@ public class LoginController extends play.mvc.Controller {
    * then redirect to login page.
    */
   public Result index() {
-    final RemoteAddress address = RemoteAddress.parse("localhost@2007");
-
-    try (final ConnectionSource source = new ClientConnectionSource(address.host, address.port)) {
-      // initialize the controller and view based on connection source
-      final Controller controller = new Controller(source);
-      final View view = new View(source);
-
-      // if user already logged in
-      if (session("username") != null) {
-        return redirect(routes.ChatController.index());
-      }
-      // else lead to log-in page
-      return redirect(routes.LoginController.display());
-
-    } catch (Exception ex) {
-      System.out.println("ERROR: Exception setting up client. Check log for details.");
-      flash("error", "Exception setting up client.");
-      return badRequest(login.render());
+    // if user already logged in
+    if (session("username") != null) {
+      return redirect(routes.ChatController.index());
     }
+    // else lead to log-in page
+    return redirect(routes.LoginController.display());
   }
 
 
   public Result login() throws SQLException {
-    Form<LoginFormData> formData = formFactory.form(LoginFormData.class).bindFromRequest();
+    DynamicForm formData = formFactory.form().bindFromRequest();
     if (formData.hasErrors()) {
       flash("error", "Username and password cannot be empty.");
       return badRequest(login.render());
     } else {
       // extract the form data
-      LoginFormData loginForm = formData.get();
-      String username = loginForm.username;
-      String password = loginForm.password;
+      String username = formData.get("username");
+      String password = formData.get("password");
 
       // database query
       Connection conn = db.getConnection();
