@@ -13,6 +13,8 @@ GET     /login                      controllers.LoginController.display
 
 GET     /chat                       controllers.ChatController.index()
 
+GET     /websocket                  controllers.ChatController.chat()
+
 POST    /createAccount              controllers.LoginController.createAccount
 
 POST    /login                      controllers.LoginController.login

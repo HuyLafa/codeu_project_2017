@@ -34,8 +34,8 @@ $(function() {
 function addSuccessMessage(message) {
   var htmlCode =
     "<div class='alert alert-dismissible alert-success'>" +
-    "<button type='button' class='close' data-dismiss='alert'> x </button>" +
-    "<p>{0}</p>".format(message) +
+      "<button type='button' class='close' data-dismiss='alert'> x </button>" +
+      "<p>{0}</p>".format(message) +
     "</div>";
     $('.body').prepend(htmlCode);
 }

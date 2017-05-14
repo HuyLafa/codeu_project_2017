@@ -1,4 +1,4 @@
-@(username: String)
+@(username: String, url: String)
 @*
 * The chat interface
 * Source: http://bootsnipp.com/snippets/vrzGb
@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="chat-area">
-                        <ul class="list-unstyled">
+                        <ul class="list-unstyled" id="chat-list">
                         </ul>
                     </div><!--chat-area-->
                     <div class="message-write">
@@ -78,10 +78,10 @@
                             <label><input type="checkbox" id="typeMath">Type math</label>
                         </div>
                         <a href="#" class="pull-right btn btn-primary">
-                            <i class="fa fa-cloud-upload" aria-hidden="true"></i>  Add Files
+                            <i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Files
                         </a>
                         <div id="input-area">
-                            <textarea class="form-control" placeholder="type a message"></textarea>
+                            <textarea class="form-control" placeholder="type a message" id="input-box"></textarea>
                         </div>
                         <div class="clearfix"></div>
                         <div class="chat-bottom">
@@ -97,7 +97,8 @@
 </div>
 @keyboard()
 <script type="text/javascript" src='@routes.Assets.versioned("javascripts/math-input.js")'></script>
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/chat.js")'></script>
+<script type="text/javascript">
+    init("@url");
+</script>
 }
-
-
-
