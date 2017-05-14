@@ -20,8 +20,8 @@ function init(websocketURL) {
         console.log('WebSocket Error ', error);
     };
     connection.onmessage = function (event) {
-        addLeftMessage($messages, event.data);
         $text.val("");
+        addLeftMessage($messages, event.data);
     }
 }
 
@@ -33,12 +33,13 @@ function addLeftMessage(container, message) {
          class="img-circle">
     </span>
      <div class="chat-body1 clearfix">
-         <p>${message}</p>
+         <p mathjax>${message}</p>
          <div class="chat_time pull-right">09:40PM</div>
      </div>
    </li>
-`;
+  `;
    container.append(htmlCode);
+   MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 }
 
 function addRightMessage(container, message) {
