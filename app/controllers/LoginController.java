@@ -3,31 +3,32 @@ package controllers;
 import javax.inject.Inject;
 
 import play.mvc.Result;
+import play.mvc.Controller;
 import play.data.FormFactory;
 import play.data.DynamicForm;
+import play.db.Database;
 import views.html.login;
-import views.formdata.UserFormData;
-import views.formdata.LoginFormData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import play.db.Database;
 
-import codeu.chat.client.Controller;
-import codeu.chat.client.View;
 import codeu.chat.util.RemoteAddress;
 import codeu.chat.util.connections.ClientConnectionSource;
 import codeu.chat.util.connections.ConnectionSource;
 import codeu.chat.util.Logger;
-import codeu.chat.client.ClientContext;
+import codeu.chat.common.NetworkCode;
+import codeu.chat.common.User;
+import codeu.chat.util.Serializers;
 
 /**
  * Created by HuyNguyen on 4/4/17.
  */
-public class LoginController extends play.mvc.Controller {
+public class LoginController extends Controller {
 
+  public static ConnectionSource source;
+  private static final Logger.Log LOG = Logger.newLog(LoginController.class);
   private Database db;
   @Inject FormFactory formFactory;
 
@@ -62,11 +63,15 @@ public class LoginController extends play.mvc.Controller {
         return badRequest(login.render());
       }
 
+      // send new user request to server
+      User newUser = newUser(username);
+
       // add user to the database
-      String addQuery = "INSERT INTO Users(username, password) VALUES (?, ?)";
+      String addQuery = "INSERT INTO Users(username, password, uuid) VALUES (?, ?, ?)";
       PreparedStatement addUser = conn.prepareStatement(addQuery);
       addUser.setString(1, username);
       addUser.setString(2, password);
+      addUser.setString(3, newUser.id.toString());
       addUser.executeUpdate();
       addUser.close();
 
@@ -81,14 +86,26 @@ public class LoginController extends play.mvc.Controller {
    * then redirect to login page.
    */
   public Result index() {
-    // if user already logged in
-    if (session("username") != null) {
-      return redirect(routes.ChatController.index());
-    }
-    // else lead to log-in page
-    return redirect(routes.LoginController.display());
-  }
+    try {
+      if (source == null) {
+        final RemoteAddress address = RemoteAddress.parse("localhost@2007");
+        source = new ClientConnectionSource(address.host, address.port);
+      }
 
+      // if user already logged in
+      if (session("username") != null) {
+        return redirect(routes.ChatController.index());
+      }
+      // else lead to log-in page
+      return redirect(routes.LoginController.display());
+
+    } catch (Exception ex) {
+      System.out.println("ERROR: Exception setting up client. Check log for details.");
+      LOG.error(ex, "Exception setting up client.");
+      flash("error", "Exception setting up client.");
+      return badRequest(login.render());
+    }
+  }
 
   public Result login() throws SQLException {
     DynamicForm formData = formFactory.form().bindFromRequest();
@@ -131,5 +148,31 @@ public class LoginController extends play.mvc.Controller {
     session().clear();
     flash("success", "Log out successfully.");
     return redirect(routes.LoginController.display());
+  }
+
+  public User newUser(String name) {
+
+    User response = null;
+
+    try (final codeu.chat.util.connections.Connection connection = source.connect()) {
+
+      // serialize the parameters
+      Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_USER_REQUEST);
+      Serializers.STRING.write(connection.out(), name);
+      LOG.info("newUser: Request completed.");
+
+      // send to server and deserialize response
+      if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_USER_RESPONSE) {
+        response = Serializers.nullable(User.SERIALIZER).read(connection.in());
+        LOG.info("newUser: Response completed.");
+      } else {
+        LOG.error("Response from server failed.");
+      }
+    } catch (Exception ex) {
+      System.out.println("ERROR: Exception during call on server. Check log for details.");
+      LOG.error(ex, "Exception during call on server.");
+    }
+
+    return response;
   }
 }
