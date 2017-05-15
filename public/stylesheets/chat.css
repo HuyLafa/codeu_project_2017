@@ -150,7 +150,7 @@
 }
 .chat-area {
   float: left;
-  height: 500px;
+  height: 475px;
   overflow-x: hidden;
   overflow-y: auto;
   width: 100%;
@@ -184,8 +184,8 @@
 }
 
 .message-write textarea.form-control {
-  padding: 10px;
-  height: 52px;
+  padding: 5px;
+  height: 30px;
 }
 .chat-bottom {
   float: left;
