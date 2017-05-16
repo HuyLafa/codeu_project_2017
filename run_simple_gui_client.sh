@@ -16,6 +16,6 @@
 
 LOCAL_MACHINE="localhost@2007"
 
-cd './bin'
+cd './target/scala-2.11/classes/'
 
 java codeu.chat.SimpleGuiClientMain "$LOCAL_MACHINE"

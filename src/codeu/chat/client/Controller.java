@@ -14,10 +14,6 @@
 
 package codeu.chat.client;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.Thread;
-
 import codeu.chat.common.BasicController;
 import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
@@ -46,11 +42,13 @@ public class Controller implements BasicController {
 
     try (final Connection connection = source.connect()) {
 
+      // serialize the parameters
       Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_MESSAGE_REQUEST);
       Uuid.SERIALIZER.write(connection.out(), author);
       Uuid.SERIALIZER.write(connection.out(), conversation);
       Serializers.STRING.write(connection.out(), body);
 
+      // send to server and deserialize response
       if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_MESSAGE_RESPONSE) {
         response = Serializers.nullable(Message.SERIALIZER).read(connection.in());
       } else {
@@ -71,10 +69,12 @@ public class Controller implements BasicController {
 
     try (final Connection connection = source.connect()) {
 
+      // serialize the parameters
       Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_USER_REQUEST);
       Serializers.STRING.write(connection.out(), name);
       LOG.info("newUser: Request completed.");
 
+      // send to server and deserialize response
       if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_USER_RESPONSE) {
         response = Serializers.nullable(User.SERIALIZER).read(connection.in());
         LOG.info("newUser: Response completed.");
@@ -96,10 +96,12 @@ public class Controller implements BasicController {
 
     try (final Connection connection = source.connect()) {
 
+      // serialize the parameters
       Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_CONVERSATION_REQUEST);
       Serializers.STRING.write(connection.out(), title);
       Uuid.SERIALIZER.write(connection.out(), owner);
 
+      // send to server and deserialize response
       if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_CONVERSATION_RESPONSE) {
         response = Serializers.nullable(Conversation.SERIALIZER).read(connection.in());
       } else {

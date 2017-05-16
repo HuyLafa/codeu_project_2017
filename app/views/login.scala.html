@@ -4,8 +4,24 @@
 *@
 
 @main("Log In") {
+@if(flash.containsKey("success")) {
+    <div class="alert alert-dismissible alert-success">
+        <button type="button" class="close" data-dismiss="alert">
+            x
+        </button>
+        <p>@flash.get("success")</p>
+    </div>
+}
+@if(flash.containsKey("error")){
+        <div class="alert alert-dismissible alert-danger">
+            <button type="button" class="close" data-dismiss="alert">
+                ×
+            </button>
+            <p>@flash.get("error")</p>
+        </div>
+}
 <div class="container">
-    <div class="row">
+    <div class="row login-box">
         <div class="col-md-6 col-md-offset-3">
             <div class="panel panel-login">
                 <div class="panel-heading">
@@ -22,7 +38,8 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-lg-12">
-                            <form id="login-form" method="post" role="form" style="display: block;">
+                            <form id="login-form" action="@routes.LoginController.login()" method="post" role="form"
+                                  style="display: block;">
                                 <div class="form-group">
                                     <input type="text" name="username" id="username" tabindex="1" class="form-control"
                                            placeholder="Username" value="">
@@ -54,7 +71,7 @@
                                     </div>
                                 </div>
                             </form>
-                            <form id="register-form" action="http://phpoll.com/register/process" method="post"
+                            <form id="register-form" action="@routes.LoginController.createAccount()" method="post"
                                   role="form" style="display: none;">
                                 <div class="form-group">
                                     <input type="text" name="username" id="username" tabindex="1" class="form-control"

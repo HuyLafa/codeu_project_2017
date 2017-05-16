@@ -1,3 +1,4 @@
+@(username: String)
 @*
 * The chat interface
 * Source: http://bootsnipp.com/snippets/vrzGb
@@ -9,6 +10,7 @@
         <div class="chat-container">
             <div class="col-sm-3 char-sidebar">
                 <div class="row">
+                    <div class="hello"><p>Hello @username !</p></div>
                     <div id="custom-search-input">
                         <div class="input-group col-md-12">
                             <input type="text" class="search-query form-control" placeholder="Conversation"/>
@@ -40,118 +42,6 @@
                     </div>
                     <div class="member-list">
                         <ul class="list-unstyled">
-                            <li class="left clearfix">
-                                <span class="chat-img pull-left">
-                                    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                                      class="img-circle">
-                                </span>
-                                <div class="chat-body clearfix">
-                                    <div class="header-sec">
-                                        <strong class="primary-font">Huy Nguyen</strong> <strong class="pull-right">
-                                        09:45AM</strong>
-                                    </div>
-                                    <div class="contact-sec">
-                                        <strong class="primary-font">(123) 123-456</strong> <span
-                                            class="badge pull-right">3</span>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="left clearfix">
-                                 <span class="chat-img pull-left">
-                                    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                                      class="img-circle">
-                                 </span>
-                                 <div class="chat-body clearfix">
-                                    <div class="header-sec">
-                                        <strong class="primary-font">Huy Nguyen</strong> <strong class="pull-right ">
-                                        09:45AM</strong>
-                                    </div>
-                                    <div class="contact-sec">
-                                        <strong class="primary-font">(123) 123-456</strong> <span
-                                            class="badge pull-right">3</span>
-                                    </div>
-                                 </div>
-                            </li>
-                            <li class="left clearfix">
-                                 <span class="chat-img pull-left">
-                                    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                                      class="img-circle">
-                                 </span>
-                                 <div class="chat-body clearfix">
-                                    <div class="header-sec">
-                                        <strong class="primary-font">Huy Nguyen</strong> <strong class="pull-right">
-                                        09:45AM</strong>
-                                    </div>
-                                    <div class="contact-sec">
-                                        <strong class="primary-font">(123) 123-456</strong> <span
-                                            class="badge pull-right">3</span>
-                                    </div>
-                                 </div>
-                            </li>
-                            <li class="left clearfix">
-                                 <span class="chat-img pull-left">
-                                    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                                      class="img-circle">
-                                 </span>
-                                 <div class="chat-body clearfix">
-                                    <div class="header-sec">
-                                        <strong class="primary-font">Huy Nguyen</strong> <strong class="pull-right">
-                                        09:45AM</strong>
-                                    </div>
-                                    <div class="contact-sec">
-                                        <strong class="primary-font">(123) 123-456</strong> <span
-                                            class="badge pull-right">3</span>
-                                    </div>
-                                 </div>
-                            </li>
-                            <li class="left clearfix">
-                                 <span class="chat-img pull-left">
-                                    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                                      class="img-circle">
-                                 </span>
-                                 <div class="chat-body clearfix">
-                                    <div class="header-sec">
-                                        <strong class="primary-font">Huy Nguyen</strong> <strong class="pull-right">
-                                        09:45AM</strong>
-                                    </div>
-                                    <div class="contact-sec">
-                                        <strong class="primary-font">(123) 123-456</strong> <span
-                                            class="badge pull-right">3</span>
-                                    </div>
-                                 </div>
-                            </li>
-                            <li class="left clearfix">
-                                 <span class="chat-img pull-left">
-                                    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                                      class="img-circle">
-                                 </span>
-                                 <div class="chat-body clearfix">
-                                    <div class="header-sec">
-                                        <strong class="primary-font">Huy Nguyen</strong> <strong class="pull-right">
-                                        09:45AM</strong>
-                                    </div>
-                                    <div class="contact-sec">
-                                        <strong class="primary-font">(123) 123-456</strong> <span
-                                            class="badge pull-right">3</span>
-                                    </div>
-                                 </div>
-                            </li>
-                            <li class="left clearfix">
-                                 <span class="chat-img pull-left">
-                                    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                                      class="img-circle">
-                                 </span>
-                                 <div class="chat-body clearfix">
-                                    <div class="header-sec">
-                                        <strong class="primary-font">Huy Nguyen</strong> <strong class="pull-right">
-                                        09:45AM</strong>
-                                    </div>
-                                    <div class="contact-sec">
-                                        <strong class="primary-font">(123) 123-456</strong> <span
-                                            class="badge pull-right">3</span>
-                                    </div>
-                                 </div>
-                            </li>
                         </ul>
                     </div>
                 </div>
@@ -173,64 +63,14 @@
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
                                     <li><a href="#">Action</a></li>
                                     <li><a href="#">Profile</a></li>
-                                    <li><a href="#">Logout</a></li>
+                                    <li><a href="/logout">Log out</a></li>
                                 </ul>
                             </div>
                         </div>
-                    </div><!--new-message-head-->
+                    </div>
 
                     <div class="chat-area">
                         <ul class="list-unstyled">
-                            <li class="left clearfix">
-                                 <span class="chat-img1 pull-left">
-                                    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                                      class="img-circle">
-                                 </span>
-                                <div class="chat-body1 clearfix">
-                                    <p>Hello world</p>
-                                    <div class="chat_time pull-right">09:40PM</div>
-                                </div>
-                            </li>
-                            <li class="left clearfix">
-                                 <span class="chat-img1 pull-left">
-                                 <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                                      class="img-circle">
-                                 </span>
-                                        <div class="chat-body1 clearfix">
-                                            <p>Hello world</p>
-                                            <div class="chat_time pull-right">09:40PM</div>
-                                        </div>
-                                        </li>
-                            <li class="left clearfix">
-                     <span class="chat-img1 pull-left">
-                     <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                          class="img-circle">
-                     </span>
-                                <div class="chat-body1 clearfix">
-                                    <p>Hello world</p>
-                                    <div class="chat_time pull-right">09:40PM</div>
-                                </div>
-                            </li>
-                            <li class="left clearfix admin_chat">
-                     <span class="chat-img1 pull-right">
-                     <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                          class="img-circle">
-                     </span>
-                                <div class="chat-body1 clearfix">
-                                    <p>Hello world</p>
-                                    <div class="chat_time pull-left">09:40PM</div>
-                                </div>
-                            </li>
-                            <li class="left clearfix admin_chat">
-                     <span class="chat-img1 pull-right">
-                     <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-                          class="img-circle">
-                     </span>
-                                <div class="chat-body1 clearfix">
-                                    <p>Hello world</p>
-                                    <div class="chat_time pull-left">09:40PM</div>
-                                </div>
-                            </li>
                         </ul>
                     </div><!--chat-area-->
                     <div class="message-write">

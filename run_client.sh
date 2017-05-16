@@ -22,5 +22,5 @@ if [[ "$HOST" == "" || "$PORT" == "" ]] ; then
   exit 1
 fi
 
-cd './bin'
+cd './target/scala-2.11/classes/'
 java codeu.chat.ClientMain "$HOST@$PORT"
