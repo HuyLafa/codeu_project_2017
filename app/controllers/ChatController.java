@@ -24,11 +24,12 @@ import views.html.chat;
  */
 public class ChatController extends Controller {
 
-  private final Flow<String, String, NotUsed> userFlow;
+  private final Flow<String, String, NotUsed> userFlow, userFlow2;
 
   @Inject
   public ChatController(ActorSystem actorSystem,
                         Materializer mat) {
+    System.out.println("injected");
     org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
     LoggingAdapter logging = Logging.getLogger(actorSystem.eventStream(), logger.getName());
 
@@ -42,6 +43,17 @@ public class ChatController extends Controller {
     Sink<String, NotUsed> chatSink = sinkSourcePair.first();
     Source<String, NotUsed> chatSource = sinkSourcePair.second();
     this.userFlow = Flow.fromSinkAndSource(chatSink, chatSource).log("userFlow", logging);
+
+    //noinspection unchecked
+    source = MergeHub.of(String.class)
+            .log("source2", logging)
+            .recoverWithRetries(-1, new PFBuilder().match(Throwable.class, e -> Source.empty()).build());
+    sink = BroadcastHub.of(String.class);
+    sinkSourcePair = source.toMat(sink, Keep.both()).run(mat);
+    chatSink = sinkSourcePair.first();
+    chatSource = sinkSourcePair.second();
+    this.userFlow2 = Flow.fromSinkAndSource(chatSink, chatSource).log("userFlow2", logging);
+//    this.userFlow3 = Flow.fromSinkAndSource(chatSink, chatSource).log("userFlow3", logging);
   }
 
   public Result index() {
@@ -50,6 +62,17 @@ public class ChatController extends Controller {
     }
     Http.Request request = request();
     String url = routes.ChatController.chat().webSocketURL(request);
+    System.out.println("index request: " + url);
+    return ok(chat.render(session("username"), url));
+  }
+
+  public Result index2() {
+    if (session("username") == null) {
+      return redirect(routes.LoginController.display());
+    }
+    Http.Request request = request();
+    String url = routes.ChatController.chat2().webSocketURL(request);
+    System.out.println("index 2 request: " + url);
     return ok(chat.render(session("username"), url));
   }
 
@@ -57,6 +80,16 @@ public class ChatController extends Controller {
     return WebSocket.Text.acceptOrResult(request -> {
       if (sameOriginCheck(request)) {
         return CompletableFuture.completedFuture(F.Either.Right(userFlow));
+      } else {
+        return CompletableFuture.completedFuture(F.Either.Left(forbidden()));
+      }
+    });
+  }
+
+  public WebSocket chat2() {
+    return WebSocket.Text.acceptOrResult(request -> {
+      if (sameOriginCheck(request)) {
+        return CompletableFuture.completedFuture(F.Either.Right(userFlow2));
       } else {
         return CompletableFuture.completedFuture(F.Either.Left(forbidden()));
       }
