@@ -8,7 +8,9 @@ function init(websocketURL, username) {
       $text.keypress(function(event) {
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
-          connection.send($text.val());
+          var inputText = $text.val();
+          $text.val("");
+          connection.send(inputText);
         }
       });
     }
@@ -22,7 +24,6 @@ function init(websocketURL, username) {
         console.log('WebSocket Error ', error);
     };
     connection.onmessage = function (event) {
-        $text.val("");
         addLeftMessage($messages, event.data);
     }
 
