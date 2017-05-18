@@ -61,8 +61,10 @@ public class ChatController extends Controller {
       return redirect(routes.LoginController.display());
     }
     Http.Request request = request();
-    String url = routes.ChatController.chat().webSocketURL(request);
-    System.out.println("index request: " + url);
+    System.out.println("index request :" + request);
+    String url = routes.ChatController.websocket("room1").webSocketURL(request);
+    System.out.println("original url: " + routes.ChatController.websocket("room1").url());
+    System.out.println("index url: " + url);
     return ok(chat.render(session("username"), url));
   }
 
@@ -76,8 +78,9 @@ public class ChatController extends Controller {
     return ok(chat.render(session("username"), url));
   }
 
-  public WebSocket chat() {
+  public WebSocket websocket(String room) {
     return WebSocket.Text.acceptOrResult(request -> {
+      System.out.println("give me the request: " + request);
       if (sameOriginCheck(request)) {
         return CompletableFuture.completedFuture(F.Either.Right(userFlow));
       } else {
