@@ -1,7 +1,33 @@
 /* Set up WebSocket */
 var $messages = $("#chat-list"), connection;
 
+
 function init(websocketURL, username) {
+  setupWebSocket(websocketURL, username);
+
+  closeKeyboard();
+
+  // switch between normal text and math input
+  $('#typeMath').change( function() {
+    $('#input-area').html("");
+    if (this.checked) {
+      $("<div id='mathquill' tabindex='0'></div>").appendTo('#input-area');
+      setupMathInput();
+    }
+    else {
+      $("<textarea class='form-control' placeholder='type a message' id='input-box'></textarea>").appendTo('#input-area');
+      closeKeyboard();
+    }
+    initInputBox();
+  });
+
+  $('.member-list li').on("click", function() {
+    var url = "/chat/" + this.id;
+    window.location.replace(url);
+  });
+}
+
+function setupWebSocket(websocketURL, username) {
     connection = new WebSocket(websocketURL);
     var initInputBox = function() {
       $text = $("#input-box");
@@ -15,7 +41,6 @@ function init(websocketURL, username) {
       });
     }
 
-
     connection.onopen = function () {
         initInputBox();
     };
@@ -24,58 +49,8 @@ function init(websocketURL, username) {
         console.log('WebSocket Error ', error);
     };
     connection.onmessage = function (event) {
-        addLeftMessage($messages, event.data);
+        addLeftMessage(username, $messages, event.data);
     }
-
-    var addLeftMessage = function(container, message) {
-      var htmlCode =
-      `<li class="left clearfix">
-        <div class="chat_time pull-left"><strong>${username}</strong></div>
-        <br>
-        <span class="chat-img1 pull-left">
-        <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-             class="img-circle">
-        </span>
-         <div class="chat-body1 clearfix">
-             <p mathjax>${message}</p>
-         </div>
-       </li>
-      `;
-       container.append(htmlCode);
-       MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-    }
-
-    var addRightMessage = function(container, message) {
-      var htmlCode =
-      `<li class="right clearfix">
-          <span class="chat-img1 pull-right">
-          <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
-               class="img-circle">
-          </span>
-           <div class="chat-body1 clearfix">
-               <p mathjax>${message}</p>
-               <div class="chat_time pull-left">${username}</div>
-           </div>
-         </li>
-        `;
-       container.append(htmlCode);
-    }
-
-    closeKeyboard();
-
-    // switch between normal text and math input
-    $('#typeMath').change( function() {
-      $('#input-area').html("");
-      if (this.checked) {
-        $("<div id='mathquill' tabindex='0'></div>").appendTo('#input-area');
-        setupMathInput();
-      }
-      else {
-        $("<textarea class='form-control' placeholder='type a message' id='input-box'></textarea>").appendTo('#input-area');
-        closeKeyboard();
-      }
-      initInputBox();
-    });
 }
 
 var setupMathInput = function() {
@@ -143,6 +118,40 @@ var setupMathInput = function() {
 	$('#keyboard-mask').height($('#keyboard-wrapper').height());
 }
 
+function addLeftMessage(username, container, message) {
+  var htmlCode =
+  `<li class="left clearfix">
+    <div class="chat_time pull-left"><strong>${username}</strong></div>
+    <br>
+    <span class="chat-img1 pull-left">
+    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
+         class="img-circle">
+    </span>
+     <div class="chat-body1 clearfix">
+         <p mathjax>${message}</p>
+     </div>
+   </li>
+  `;
+   container.append(htmlCode);
+   MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+}
+
+function addRightMessage(username, container, message) {
+  var htmlCode =
+  `<li class="right clearfix">
+      <div class="chat_time pull-right"><strong>${username}</strong></div>
+      <br>
+      <span class="chat-img1 pull-right">
+      <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
+           class="img-circle">
+      </span>
+       <div class="chat-body1 clearfix">
+           <p mathjax>${message}</p>
+       </div>
+     </li>
+   `;
+   container.append(htmlCode);
+}
 
 function closeKeyboard() {
 	$('#keyboard-mask').slideUp();

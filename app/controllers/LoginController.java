@@ -94,7 +94,7 @@ public class LoginController extends Controller {
 
       // if user already logged in
       if (session("username") != null) {
-        return redirect(routes.ChatController.index());
+        return redirect(routes.ChatController.chatroom("public"));
       }
       // else lead to log-in page
       return redirect(routes.LoginController.display());
@@ -132,7 +132,7 @@ public class LoginController extends Controller {
           getPassword.close();
           conn.close();
           session("username", username);
-          return redirect(routes.ChatController.index());
+          return redirect(routes.ChatController.chatroom("public"));
         }
       }
 
