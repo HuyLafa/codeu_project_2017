@@ -1,5 +1,7 @@
 package controllers;
 
+import play.data.DynamicForm;
+import play.data.FormFactory;
 import play.mvc.*;
 
 import akka.NotUsed;
@@ -29,6 +31,7 @@ public class ChatController extends Controller {
   private HashMap<String,Flow<String, String, NotUsed>> flowMap = new HashMap<>();
   private ActorSystem actorSystem;
   private Materializer mat;
+  @Inject FormFactory formFactory;
 
   @Inject
   public ChatController(ActorSystem actorSystem, Materializer mat) {
@@ -40,6 +43,9 @@ public class ChatController extends Controller {
     flowMap.put("room1", createUserFlowForRoom("room1"));
   }
 
+  public Result index() {
+    return redirect(routes.ChatController.chatroom("public"));
+  }
 
   public Result chatroom(String roomID) {
     if (session("username") == null) {
@@ -47,14 +53,12 @@ public class ChatController extends Controller {
     }
     Http.Request request = request();
     String url = routes.ChatController.websocket(roomID).webSocketURL(request);
-    System.out.println("original url: " + routes.ChatController.websocket(roomID).url());
-    System.out.println("index url: " + url);
-    return ok(chat.render(session("username"), url));
+    return ok(chat.render(session("username"), url, flowMap.keySet()));
   }
+
 
   public WebSocket websocket(String roomID) {
     return WebSocket.Text.acceptOrResult(request -> {
-      System.out.println("give me the request: " + request);
       if (sameOriginCheck(request)) {
         return CompletableFuture.completedFuture(F.Either.Right(flowMap.get(roomID)));
       } else {
@@ -63,37 +67,13 @@ public class ChatController extends Controller {
     });
   }
 
-//
-//  public Result index2() {
-//    if (session("username") == null) {
-//      return redirect(routes.LoginController.display());
-//    }
-//    Http.Request request = request();
-//    String url = routes.ChatController.chat2().webSocketURL(request);
-//    System.out.println("index 2 request: " + url);
-//    return ok(chat.render(session("username"), url));
-//  }
-//
-//  public WebSocket websocket(String room) {
-//    return WebSocket.Text.acceptOrResult(request -> {
-//      System.out.println("give me the request: " + request);
-//      if (sameOriginCheck(request)) {
-//        return CompletableFuture.completedFuture(F.Either.Right(userFlow));
-//      } else {
-//        return CompletableFuture.completedFuture(F.Either.Left(forbidden()));
-//      }
-//    });
-//  }
-//
-//  public WebSocket chat2() {
-//    return WebSocket.Text.acceptOrResult(request -> {
-//      if (sameOriginCheck(request)) {
-//        return CompletableFuture.completedFuture(F.Either.Right(userFlow2));
-//      } else {
-//        return CompletableFuture.completedFuture(F.Either.Left(forbidden()));
-//      }
-//    });
-//  }
+
+  public Result newConversation() {
+    DynamicForm dynamicForm = formFactory.form().bindFromRequest();
+    String roomID = dynamicForm.get("roomID");
+    flowMap.put(roomID, createUserFlowForRoom(roomID));
+    return ok(roomID);
+  }
 
   /**
    * Checks that the WebSocket comes from the same origin.  This is necessary to protect

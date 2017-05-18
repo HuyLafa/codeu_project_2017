@@ -21,8 +21,38 @@ function init(websocketURL, username) {
     initInputBox();
   });
 
+  // add conversation
+  $('#new-conversation').on("click", function() {
+    var roomID = prompt("Please enter the room name");
+    if (roomID != null) {
+      $.post(`/new-conversation/`, { 'roomID': roomID }, function(data) {
+        $('.member-list ul').append(`
+          <li class="left clearfix" id=${roomID}>
+              <span class="chat-img pull-left">
+                  <img src="https://lh6.googleusercontent.com/-y-MY2satK-E/AAAAAAAAAAI/AAAAAAAAAJU/ER_hFddBheQ/photo.jpg" alt="User Avatar" class="img-circle">
+              </span>
+              <div class="chat-body clearfix">
+                  <div class="header_sec">
+                      <strong class="primary-font">${data}</strong> <strong class="pull-right ">
+                      09:45AM</strong>
+                  </div>
+                  <div class="contact_sec">
+                      <strong class="primary-font">(123) 123-456</strong>
+                      <span class="badge pull-right">3</span>
+                  </div>
+              </div>
+          </li>
+        `).on("click", function() {
+          var url = `/chat/${roomID}`;
+          window.location.replace(url);
+        });
+      });
+    }
+  });
+
+  // pick conversation
   $('.member-list li').on("click", function() {
-    var url = "/chat/" + this.id;
+    var url = `/chat/${this.id}`;
     window.location.replace(url);
   });
 }

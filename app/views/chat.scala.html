@@ -1,4 +1,4 @@
-@(username: String, url: String)
+@(username: String, websocketURL: String, roomIDs: Set[String])
 @*
 * The chat interface
 * Source: http://bootsnipp.com/snippets/vrzGb
@@ -22,12 +22,12 @@
                     <div class="member-list">
                         <ul class="list-unstyled">
                             <li class="left clearfix" id="public">
-                                <span class="chat-img pull-left">
-                                    <img src="https://lh6.googleusercontent.com/-y-MY2satK-E/AAAAAAAAAAI/AAAAAAAAAJU/ER_hFddBheQ/photo.jpg" alt="User Avatar" class="img-circle">
-                                </span>
+                                    <span class="chat-img pull-left">
+                                        <img src="https://lh6.googleusercontent.com/-y-MY2satK-E/AAAAAAAAAAI/AAAAAAAAAJU/ER_hFddBheQ/photo.jpg" alt="User Avatar" class="img-circle">
+                                    </span>
                                 <div class="chat-body clearfix">
                                     <div class="header_sec">
-                                        <strong class="primary-font">Public room</strong> <strong class="pull-right ">
+                                        <strong class="primary-font">Public</strong> <strong class="pull-right ">
                                         09:45AM</strong>
                                     </div>
                                     <div class="contact_sec">
@@ -36,22 +36,23 @@
                                     </div>
                                 </div>
                             </li>
-
-                            <li class="left clearfix" id="room1">
-                                <span class="chat-img pull-left">
-                                    <img src="https://lh6.googleusercontent.com/-y-MY2satK-E/AAAAAAAAAAI/AAAAAAAAAJU/ER_hFddBheQ/photo.jpg" alt="User Avatar" class="img-circle">
-                                </span>
-                                <div class="chat-body clearfix">
-                                    <div class="header_sec">
-                                        <strong class="primary-font">Room 1</strong> <strong class="pull-right ">
-                                        09:45AM</strong>
+                            @for(id <- roomIDs if id != "public") {
+                                <li class="left clearfix" id="@id">
+                                    <span class="chat-img pull-left">
+                                        <img src="https://lh6.googleusercontent.com/-y-MY2satK-E/AAAAAAAAAAI/AAAAAAAAAJU/ER_hFddBheQ/photo.jpg" alt="User Avatar" class="img-circle">
+                                    </span>
+                                    <div class="chat-body clearfix">
+                                        <div class="header_sec">
+                                            <strong class="primary-font">@id</strong> <strong class="pull-right ">
+                                            09:45AM</strong>
+                                        </div>
+                                        <div class="contact_sec">
+                                            <strong class="primary-font">(123) 123-456</strong>
+                                            <span class="badge pull-right">3</span>
+                                        </div>
                                     </div>
-                                    <div class="contact_sec">
-                                        <strong class="primary-font">(123) 123-456</strong>
-                                        <span class="badge pull-right">3</span>
-                                    </div>
-                                </div>
-                            </li>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -61,7 +62,9 @@
                 <div class="row">
                     <div class="new-message-head">
                         <div class="pull-left">
-                            <button><i class="fa fa-plus-square-o" aria-hidden="true"></i> New Message</button>
+                            <button><i class="fa fa-plus-square-o" aria-hidden="true" id="new-conversation"></i>
+                                New Conversation
+                            </button>
                         </div>
                         <div class="pull-right">
                             <div class="dropdown">
@@ -111,6 +114,6 @@
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
       });
-    init("@url", "@username");
+    init("@websocketURL", "@username");
 </script>
 }
