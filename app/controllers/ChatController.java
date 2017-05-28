@@ -1,8 +1,15 @@
 package controllers;
 
+import codeu.chat.common.Conversation;
+import codeu.chat.common.NetworkCode;
+import codeu.chat.util.Logger;
+import codeu.chat.util.Serializers;
+import codeu.chat.util.Uuid;
+
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.*;
+import play.db.Database;
 
 import akka.NotUsed;
 import akka.actor.ActorSystem;
@@ -16,7 +23,12 @@ import play.libs.F;
 import play.mvc.Controller;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 import java.util.HashMap;
 
@@ -29,18 +41,22 @@ public class ChatController extends Controller {
 
   // maps a room ID to the user flow for that room
   private HashMap<String,Flow<String, String, NotUsed>> flowMap = new HashMap<>();
+  private static final Logger.Log LOG = Logger.newLog(ChatController.class);
   private ActorSystem actorSystem;
   private Materializer mat;
+  private Database db;
   @Inject FormFactory formFactory;
 
   @Inject
-  public ChatController(ActorSystem actorSystem, Materializer mat) {
+  public ChatController(ActorSystem actorSystem, Materializer mat, Database db) {
     this.actorSystem = actorSystem;
     this.mat = mat;
+    this.db = db;
 
-    // create a default public room
-    flowMap.put("public", createUserFlowForRoom("public"));
-    flowMap.put("room1", createUserFlowForRoom("room1"));
+    // create two default public rooms
+    String adminID = getUuidFromUsername("admin");
+    addConversation("public", adminID);
+    addConversation("room1", adminID);
   }
 
   public Result index() {
@@ -68,12 +84,12 @@ public class ChatController extends Controller {
   }
 
 
-  public Result newConversation() {
-    DynamicForm dynamicForm = formFactory.form().bindFromRequest();
-    String roomID = dynamicForm.get("roomID");
-    flowMap.put(roomID, createUserFlowForRoom(roomID));
-    return ok(roomID);
-  }
+//  public Result newConversation() {
+//    DynamicForm dynamicForm = formFactory.form().bindFromRequest();
+//    String roomID = dynamicForm.get("roomID");
+//    flowMap.put(roomID, createUserFlowForRoom(roomID));
+//    return ok(roomID);
+//  }
 
   /**
    * Checks that the WebSocket comes from the same origin.  This is necessary to protect
@@ -117,5 +133,97 @@ public class ChatController extends Controller {
     Sink<String, NotUsed> chatSink = sinkSourcePair.first();
     Source<String, NotUsed> chatSource = sinkSourcePair.second();
     return Flow.fromSinkAndSource(chatSink, chatSource).log(roomID, logging);
+  }
+
+  private String getUuidFromUsername(String username) {
+    try {
+      System.out.println(this.db);
+      Connection conn = this.db.getConnection();
+      String sqlQuery = "SELECT uuid FROM users WHERE username = ?";
+      PreparedStatement getID = conn.prepareStatement(sqlQuery);
+      getID.setString(1, username);
+      ResultSet queryResult = getID.executeQuery();
+      if (queryResult.next()) {
+        String uuid = queryResult.getString("UUID");
+        getID.close();
+        conn.close();
+        System.out.println("admin id before: " + uuid);
+        return uuid;
+      } else {
+        conn.close();
+        return null;
+      }
+    } catch (SQLException e) {
+      LOG.error("Error in database query: " + e);
+      return null;
+    }
+  }
+
+  private String getUsernameFromUuid(String uuid) {
+    try {
+      Connection conn = db.getConnection();
+      String sqlQuery = "SELECT username FROM users WHERE uuid = ?";
+      PreparedStatement getID = conn.prepareStatement(sqlQuery);
+      getID.setString(1, uuid);
+      ResultSet queryResult = getID.executeQuery();
+      if (queryResult.next()) {
+        conn.close();
+        String username = queryResult.getString("username");
+        return username;
+      } else {
+        conn.close();
+        return null;
+      }
+    } catch (SQLException e) {
+      LOG.error("Error in database query: " + e);
+      return null;
+    }
+  }
+
+  private void addConversation(String title, String ownerID) {
+    try {
+      // add conversation to database
+      Connection conn = db.getConnection();
+      Conversation newConv = newConversation(title, Uuid.parse(ownerID));
+      String sqlQuery = "INSERT OR IGNORE INTO chatrooms(uuid, name) VALUES (?, ?)";
+      PreparedStatement insert = conn.prepareStatement(sqlQuery);
+      insert.setString(1, newConv.id.toString());
+      insert.setString(2, title);
+      insert.executeUpdate();
+      insert.close();
+      conn.close();
+
+      // add hub
+      flowMap.put(title, createUserFlowForRoom(ownerID));
+    } catch (IOException e) {
+      LOG.error("Error creating UUID for conversation" + e);
+    } catch (SQLException e) {
+      LOG.error("Error adding conversation to database " + e);
+    }
+  }
+
+  private Conversation newConversation(String title, Uuid owner)  {
+
+    Conversation response = null;
+
+    try (final codeu.chat.util.connections.Connection connection = LoginController.source.connect()) {
+
+      // serialize the parameters
+      Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_CONVERSATION_REQUEST);
+      Serializers.STRING.write(connection.out(), title);
+      Uuid.SERIALIZER.write(connection.out(), owner);
+
+      // send to server and deserialize response
+      if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_CONVERSATION_RESPONSE) {
+        response = Serializers.nullable(Conversation.SERIALIZER).read(connection.in());
+      } else {
+        LOG.error("Response from server failed.");
+      }
+    } catch (Exception ex) {
+      System.out.println("ERROR: Exception during call on server. Check log for details.");
+      LOG.error(ex, "Exception during call on server.");
+    }
+
+    return response;
   }
 }

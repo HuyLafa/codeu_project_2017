@@ -9,6 +9,7 @@ import play.data.DynamicForm;
 import play.db.Database;
 import views.html.login;
 
+import java.rmi.Remote;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,13 +28,31 @@ import codeu.chat.util.Serializers;
  */
 public class LoginController extends Controller {
 
-  public static ConnectionSource source;
+  public static final ConnectionSource source = establishSource();
   private static final Logger.Log LOG = Logger.newLog(LoginController.class);
   private Database db;
   @Inject FormFactory formFactory;
 
   @Inject
-  public LoginController(Database db) { this.db = db; }
+  public LoginController(Database inputDB) {
+    db = inputDB;
+
+    // create a default admin account
+    try {
+      User admin = newUser("admin");
+      Connection conn = db.getConnection();
+      String insertQuery = "INSERT OR IGNORE INTO users(uuid, username, password) VALUES(?, ?, ?)";
+      PreparedStatement insertAdmin = conn.prepareStatement(insertQuery);
+      insertAdmin.setString(1, admin.id.toString());
+      insertAdmin.setString(2, "admin");
+      insertAdmin.setString(3, "123456");
+      insertAdmin.executeUpdate();
+      insertAdmin.close();
+      conn.close();
+    } catch (SQLException e) {
+      LOG.error("Error adding admin to database");
+    }
+  }
 
   public Result display() {
     return ok(login.render());
@@ -42,10 +61,13 @@ public class LoginController extends Controller {
   public Result createAccount() throws SQLException {
     DynamicForm formData = formFactory.form().bindFromRequest();
     if (formData.hasErrors()) {
+
       // don't call formData.get() when there are errors, pass 'null' to helpers instead
       flash("error", "Errors with log-in information");
       return badRequest(login.render());
+
     } else {
+
       // extract the form data
       String username = formData.get("username");
       String password = formData.get("password");
@@ -56,12 +78,15 @@ public class LoginController extends Controller {
       PreparedStatement getUser = conn.prepareStatement(findQuery);
       getUser.setString(1, username);
       ResultSet queryResult = getUser.executeQuery();
-      getUser.close();
 
       if (queryResult.next()) {
+        getUser.close();
+        conn.close();
         flash("error", "Username is already taken.");
         return badRequest(login.render());
       }
+
+      getUser.close();
 
       // send new user request to server
       User newUser = newUser(username);
@@ -78,6 +103,7 @@ public class LoginController extends Controller {
       conn.close();
       flash("success", "Create account successfully. Please log in.");
       return redirect(routes.LoginController.display());
+
     }
   }
 
@@ -86,25 +112,12 @@ public class LoginController extends Controller {
    * then redirect to login page.
    */
   public Result index() {
-    try {
-      if (source == null) {
-        final RemoteAddress address = RemoteAddress.parse("localhost@2007");
-        source = new ClientConnectionSource(address.host, address.port);
-      }
-
       // if user already logged in
       if (session("username") != null) {
         return redirect(routes.ChatController.index());
       }
       // else lead to log-in page
       return redirect(routes.LoginController.display());
-
-    } catch (Exception ex) {
-      System.out.println("ERROR: Exception setting up client. Check log for details.");
-      LOG.error(ex, "Exception setting up client.");
-      flash("error", "Exception setting up client.");
-      return badRequest(login.render());
-    }
   }
 
   public Result login() throws SQLException {
@@ -174,5 +187,20 @@ public class LoginController extends Controller {
     }
 
     return response;
+  }
+
+  private static ClientConnectionSource establishSource() {
+    try {
+      if (source == null) {
+        RemoteAddress address = RemoteAddress.parse("localhost@2007");
+        return new ClientConnectionSource(address.host, address.port);
+      }
+
+    } catch (Exception ex) {
+      System.out.println("ERROR: Exception setting up client. Check log for details.");
+      LOG.error(ex, "Exception setting up client.");
+      flash("error", "Exception setting up client.");
+    }
+    return null;
   }
 }

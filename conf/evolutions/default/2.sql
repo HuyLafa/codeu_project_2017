@@ -1,21 +1,18 @@
 # --- !Ups
 
-CREATE TABLE total_message (
-  'user1_uuid' VARCHAR NOT NULL,
-  'user2_uuid' VARCHAR NOT NULL,
-  'message_count' INT,
-  PRIMARY KEY ('user1_uuid', 'user2_uuid')
+CREATE TABLE chatrooms (
+  'uuid' VARCHAR PRIMARY KEY,
+  'name' VARCHAR NOT NULL
 );
 
 CREATE TABLE message (
-  'user1_uuid' VARCHAR NOT NULL,
-  'user2_uuid' VARCHAR NOT NULL,
-  'message_number' INT,
+  'chatroom_uuid' VARCHAR,
+  'author_uuid' VARCHAR,
   'message' VARCHAR,
-  'from_user_uuid' VARCHAR NOT NULL,
-  PRIMARY KEY ('user1_uuid', 'user2_uuid', 'message_number')
-);
+  FOREIGN KEY ('chatroom_uuid') REFERENCES chatrooms(uuid),
+  FOREIGN KEY ('author_uuid') REFERENCES users(uuid)
+)
 
 # --- !Downs
-DROP TABLE total_message;
+DROP TABLE chatrooms;
 DROP TABLE message;
