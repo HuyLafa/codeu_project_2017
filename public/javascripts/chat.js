@@ -1,8 +1,11 @@
 /* Set up WebSocket */
 var $messages = $("#chat-list"), connection;
+var username;
+var websocketURL;
 
-
-function init(websocketURL, username) {
+function init(websocket, user) {
+  username = user;
+  websocketURL = websocket;
   setupWebSocket(websocketURL, username);
 
   closeKeyboard();
@@ -63,21 +66,6 @@ function init(websocketURL, username) {
 
 function setupWebSocket(websocketURL, username) {
     connection = new WebSocket(websocketURL);
-    var initInputBox = function() {
-      $text = $("#input-box");
-      $text.keypress(function(event) {
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        if(keycode == '13'){
-          var msg = {
-            author : username,
-            message : $text.val(),
-            date : Date.now(),
-          }
-          $text.val("");
-          connection.send(JSON.stringify(msg));
-        }
-      });
-    }
 
     connection.onopen = function () {
       initInputBox();
@@ -89,11 +77,31 @@ function setupWebSocket(websocketURL, username) {
 
     connection.onmessage = function (event) {
       var msg = JSON.parse(event.data);
-      console.log("receive data: " + event.data);
       var time = new Date(msg.date);
       var timeString = time.toLocaleTimeString();
-      addLeftMessage(msg.author, $messages, msg.message);
+      if (msg.author == username) {
+        addLeftMessage(msg.author, $messages, msg.message, timeString);
+      }
+      else {
+        addRightMessage(msg.author, $messages, msg.message, timeString);
+      }
     }
+}
+
+function initInputBox() {
+  $text = $("#input-box");
+  $text.keypress(function(event) {
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if(keycode == '13'){
+      var msg = {
+        author : username,
+        message : $text.val(),
+        date : Date.now(),
+      }
+      $text.val("");
+      connection.send(JSON.stringify(msg));
+    }
+  });
 }
 
 var setupMathInput = function() {
@@ -153,7 +161,12 @@ var setupMathInput = function() {
 	$('#mathquill').keypress(function(event) {
 	  var keycode = (event.keyCode ? event.keyCode : event.which);
     if(keycode == '13'){
-      connection.send("$$" + mathField.latex() + "$$");
+      var msg = {
+        author : username,
+        message : "$$" + mathField.latex() + "$$",
+        date : Date.now(),
+      }
+      connection.send(JSON.stringify(msg));
       mathField.latex("");
     }
 	});
@@ -161,7 +174,7 @@ var setupMathInput = function() {
 	$('#keyboard-mask').height($('#keyboard-wrapper').height());
 }
 
-function addLeftMessage(username, container, message) {
+function addLeftMessage(username, container, message, time) {
   var htmlCode =
   `<li class="left clearfix">
     <div class="chat_time pull-left"><strong>${username}</strong></div>
@@ -172,6 +185,7 @@ function addLeftMessage(username, container, message) {
     </span>
      <div class="chat-body1 clearfix">
          <p mathjax>${message}</p>
+         <div class="chat_time pull-right">${time}</div>
      </div>
    </li>
   `;
@@ -179,9 +193,9 @@ function addLeftMessage(username, container, message) {
    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 }
 
-function addRightMessage(username, container, message) {
+function addRightMessage(username, container, message, time) {
   var htmlCode =
-  `<li class="right clearfix">
+  `<li class="left clearfix other_chat">
       <div class="chat_time pull-right"><strong>${username}</strong></div>
       <br>
       <span class="chat-img1 pull-right">
@@ -190,10 +204,12 @@ function addRightMessage(username, container, message) {
       </span>
        <div class="chat-body1 clearfix">
            <p mathjax>${message}</p>
+           <div class="chat_time pull-left">${time}</div>
        </div>
      </li>
    `;
    container.append(htmlCode);
+   MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 }
 
 function closeKeyboard() {
