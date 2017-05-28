@@ -29,7 +29,11 @@ function init(websocketURL, username) {
         $('.member-list ul').append(`
           <li class="left clearfix" id=${roomID}>
               <span class="chat-img pull-left">
-                  <img src="https://lh6.googleusercontent.com/-y-MY2satK-E/AAAAAAAAAAI/AAAAAAAAAJU/ER_hFddBheQ/photo.jpg" alt="User Avatar" class="img-circle">
+                  <img
+                    src="https://lh6.googleusercontent.com/-y-MY2satK-E/AAAAAAAAAAI/AAAAAAAAAJU/ER_hFddBheQ/photo.jpg"
+                    alt="User Avatar"
+                    class="img-circle"
+                  >
               </span>
               <div class="chat-body clearfix">
                   <div class="header_sec">
@@ -64,22 +68,31 @@ function setupWebSocket(websocketURL, username) {
       $text.keypress(function(event) {
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
-          var inputText = $text.val();
+          var msg = {
+            author : username,
+            message : $text.val(),
+            date : Date.now(),
+          }
           $text.val("");
-          connection.send(inputText);
+          connection.send(JSON.stringify(msg));
         }
       });
     }
 
     connection.onopen = function () {
-        initInputBox();
+      initInputBox();
     };
 
     connection.onerror = function (error) {
-        console.log('WebSocket Error ', error);
+      console.log('WebSocket Error ', error);
     };
+
     connection.onmessage = function (event) {
-        addLeftMessage(username, $messages, event.data);
+      var msg = JSON.parse(event.data);
+      console.log("receive data: " + event.data);
+      var time = new Date(msg.date);
+      var timeString = time.toLocaleTimeString();
+      addLeftMessage(msg.author, $messages, msg.message);
     }
 }
 
