@@ -1,15 +1,15 @@
 # --- !Ups
 
 CREATE TABLE users (
-  'id' INTEGER PRIMARY KEY,
+  'uuid' VARCHAR PRIMARY KEY,
   'username' VARCHAR UNIQUE NOT NULL,
   'password' VARCHAR NOT NULL,
-  'uuid' VARCHAR
+  'email' VARCHAR
 );
 
 CREATE UNIQUE INDEX username_index ON users ('username');
 
-INSERT INTO users ('username', 'password', 'uuid') VALUES ("admin", "123456", "0");
+INSERT INTO users ('uuid', 'username', 'password') VALUES ("0", "admin", "123456");
 
 # --- !Downs
 DROP TABLE users;
