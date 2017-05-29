@@ -1,4 +1,4 @@
-@(username: String, websocketURL: String, roomIDs: Set[String])
+@(username: String, websocketURL: String, roomIDs: Set[String], messages: List[ChatMessage])
 @*
 * The chat interface
 * Source: http://bootsnipp.com/snippets/vrzGb
@@ -95,9 +95,17 @@
 @keyboard()
 <script type="text/javascript" src='@routes.Assets.versioned("javascripts/chat.js")'></script>
 <script type="text/javascript">
+    // tell MathJax to recognize inline math by $ $
     MathJax.Hub.Config({
-        tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+        tex2jax: {inlineMath: [["$","$"]]}
       });
+
+    // initialize the UI
     init("@websocketURL", "@username");
+
+    // populate the message field with past messages
+    @for(message <- messages) {
+        addMessage("@message.author", $("#chat-list"), "@message.message", "@message.time");
+    }
 </script>
 }

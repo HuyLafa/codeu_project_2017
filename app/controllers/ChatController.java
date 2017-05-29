@@ -29,10 +29,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.HashMap;
 
 import views.html.chat;
+import models.ChatMessage;
 
 /**
  * A chat client using WebSocket.
@@ -63,13 +65,18 @@ public class ChatController extends Controller {
     return redirect(routes.ChatController.chatroom("public"));
   }
 
-  public Result chatroom(String roomID) {
+  public Result chatroom(String roomName) {
     if (session("username") == null) {
       return redirect(routes.LoginController.display());
     }
+
+    // get the websocket URL
     Http.Request request = request();
-    String url = routes.ChatController.websocket(roomID).webSocketURL(request);
-    return ok(chat.render(session("username"), url, flowMap.keySet()));
+    String url = routes.ChatController.websocket(roomName).webSocketURL(request);
+
+    // get past messages from the database
+    ArrayList<ChatMessage> messages = getAllMessages(roomName);
+    return ok(chat.render(session("username"), url, flowMap.keySet(), messages));
   }
 
 
@@ -96,11 +103,11 @@ public class ChatController extends Controller {
     String authorName = dynamicForm.get("authorName");
     String roomName = getRoomNameFromURL(dynamicForm.get("websocketURL"));
     String message = dynamicForm.get("message");
+    String time = dynamicForm.get("time");
 
     String authorID = getUuidFromName("users", authorName);
     String roomID = getUuidFromName("chatrooms", roomName);
-    addMessage(roomID, authorID, message);
-    System.out.println("heloooooooooo");
+    addMessage(roomID, authorID, message, time);
     return ok();
   }
 
@@ -179,8 +186,9 @@ public class ChatController extends Controller {
       getID.setString(1, uuid);
       ResultSet queryResult = getID.executeQuery();
       if (queryResult.next()) {
-        conn.close();
         String name = queryResult.getString("name");
+        queryResult.close();
+        conn.close();
         return name;
       } else {
         conn.close();
@@ -240,19 +248,46 @@ public class ChatController extends Controller {
     return response;
   }
 
-  private void addMessage(String chatroomID, String authorID, String message) {
+  private void addMessage(String chatroomID, String authorID, String message, String time) {
     try {
       Connection conn = db.getConnection();
-      String query = "INSERT INTO messages(chatroom_uuid, author_uuid, message) VALUES (?,?,?)";
+      String query = "INSERT INTO messages(chatroom_uuid, author_uuid, message, time) VALUES (?,?,?,?)";
       PreparedStatement statement = conn.prepareStatement(query);
       statement.setString(1, chatroomID);
       statement.setString(2, authorID);
       statement.setString(3, message);
+      statement.setString(4, time);
       statement.executeUpdate();
       statement.close();
       conn.close();
     } catch (SQLException e) {
       LOG.error("error adding message to database");
+    }
+  }
+
+  private ArrayList<ChatMessage> getAllMessages(String chatroomName) {
+    ArrayList<ChatMessage> result = new ArrayList<>();
+    try {
+      String chatroomID = getUuidFromName("chatrooms", chatroomName);
+      String query = "SELECT * FROM messages WHERE chatroom_uuid = ?";
+      Connection conn = db.getConnection();
+      PreparedStatement statement = conn.prepareStatement(query);
+      statement.setString(1, chatroomID);
+      ResultSet messages =  statement.executeQuery();
+      while (messages.next()) {
+        String authorID = messages.getString("author_uuid");
+        String author = getNameFromUuid("users", authorID);
+        String message = messages.getString("message");
+        String time = messages.getString("time");
+        ChatMessage chatMessage = new ChatMessage(author, message, time);
+        result.add(chatMessage);
+      }
+      messages.close();
+      conn.close();
+    } catch (SQLException e) {
+      LOG.error("error retrieving messages from chat room " + chatroomName);
+    } finally {
+      return result;
     }
   }
 

@@ -78,14 +78,7 @@ function setupWebSocket(websocketURL, username) {
 
     connection.onmessage = function (event) {
       var msg = JSON.parse(event.data);
-      var time = new Date(msg.date);
-      var timeString = time.toLocaleTimeString();
-      if (msg.author == username) {
-        addLeftMessage(msg.author, $messages, msg.message, timeString);
-      }
-      else {
-        addRightMessage(msg.author, $messages, msg.message, timeString);
-      }
+      addMessage(msg.author, $messages, msg.message, msg.date);
     }
 }
 
@@ -94,16 +87,21 @@ function initInputBox() {
   $text.keypress(function(event) {
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if(keycode == '13'){
+      event.preventDefault();
       var inputText = $text.val();
+      var currentDate = Date.now().toString();
       var msg = {
         author : username,
         message : inputText,
-        date : Date.now(),
+        date : currentDate,
       }
       $text.val("");
       connection.send(JSON.stringify(msg));
-      $.post("/new-message", {"authorName" : username, "websocketURL" : websocketURL, "message" : inputText}, function() {
-        console.log("post request sent");
+      $.post("/new-message", {
+        "authorName" : username,
+        "websocketURL" : websocketURL,
+        "message" : inputText,
+        "time" : currentDate
       });
     }
   });
@@ -166,19 +164,37 @@ var setupMathInput = function() {
 	$('#mathquill').keypress(function(event) {
 	  var keycode = (event.keyCode ? event.keyCode : event.which);
     if(keycode == '13'){
+      event.preventDefault();
       var inputText = "$$" + mathField.latex() + "$$";
+      var currentDate = Date.now().toString();
       var msg = {
         author : username,
         message : inputText,
-        date : Date.now(),
+        date : currentDate,
       }
       connection.send(JSON.stringify(msg));
       mathField.latex("");
-      $.post("/new-message", {"authorName" : username, "websocketURL" : websocketURL, "message" : inputText});
+      $.post("/new-message", {
+        "authorName" : username,
+        "websocketURL" : websocketURL,
+        "message" : inputText,
+        "time" : currentDate
+      });
     }
 	});
 
 	$('#keyboard-mask').height($('#keyboard-wrapper').height());
+}
+
+function addMessage(author, container, message, date) {
+  var d = new Date(+date);
+  var timeString = d.toLocaleTimeString();
+  if (author == username) {
+    addLeftMessage(author, container, message, timeString);
+  } else {
+    addRightMessage(author, container, message, timeString);
+  }
+  MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 }
 
 function addLeftMessage(username, container, message, time) {
@@ -197,7 +213,6 @@ function addLeftMessage(username, container, message, time) {
    </li>
   `;
    container.append(htmlCode);
-   MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 }
 
 function addRightMessage(username, container, message, time) {
@@ -216,7 +231,6 @@ function addRightMessage(username, container, message, time) {
      </li>
    `;
    container.append(htmlCode);
-   MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 }
 
 function closeKeyboard() {
