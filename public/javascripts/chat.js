@@ -79,6 +79,7 @@ function setupWebSocket(websocketURL, username) {
     connection.onmessage = function (event) {
       var msg = JSON.parse(event.data);
       addMessage(msg.author, $messages, msg.message, msg.date);
+      $('.chat-area').scrollTop($('.chat-area')[0].scrollHeight);
     }
 }
 

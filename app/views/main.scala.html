@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String)(header: Html)(content: Html)
 
 @*
 * A template for all HTML pages
@@ -17,9 +17,9 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     
     <!-- Custom CSS files -->
-    <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>
-    <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/keyboard.css")'>
-    <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/chat.css")'>
+    <!--<link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/main.css")'>-->
+    <!--<link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/keyboard.css")'>-->
+    <!--<link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/chat.css")'>-->
 
     <!-- Import JS frameworks -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"
@@ -39,6 +39,7 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/virtual-keyboard/1.26.18/js/jquery.keyboard.min.js"></script>
+    @header
 </head>
 <body class="body">
 @content

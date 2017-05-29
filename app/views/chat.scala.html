@@ -5,6 +5,9 @@
 *@
 
 @main("Chat room") {
+<link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/keyboard.css")'>
+<link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/chat.css")'>
+} {
 <div class="main-section">
     <div class="container">
         <div class="chat-container">
@@ -24,7 +27,10 @@
                             @for(id <- roomIDs) {
                                 <li class="left clearfix" id="@id">
                                     <span class="chat-img pull-left">
-                                        <img src="https://lh6.googleusercontent.com/-y-MY2satK-E/AAAAAAAAAAI/AAAAAAAAAJU/ER_hFddBheQ/photo.jpg" alt="User Avatar" class="img-circle">
+                                        <img src='@routes.Assets.versioned("images/conversation.jpeg")'
+                                             alt="User Avatar"
+                                             class="img-circle"
+                                        >
                                     </span>
                                     <div class="chat-body clearfix">
                                         <div class="header_sec">
@@ -81,11 +87,6 @@
                             <textarea class="form-control" placeholder="type a message" id="input-box"></textarea>
                         </div>
                         <div class="clearfix"></div>
-                        <div class="chat-bottom">
-                            <script type="text/javascript" id="WolframAlphaScript7e13960d274c8f1ad54064e19f68b954"
-                                    src="http://www.wolframalpha.com/widget/widget.jsp?id=7e13960d274c8f1ad54064e19f68b954">
-                            </script>
-                        </div>
                     </div>
                 </div>
             </div> <!--message-section-->
@@ -107,5 +108,6 @@
     @for(message <- messages) {
         addMessage("@message.author", $("#chat-list"), "@message.message", "@message.time");
     }
+    $('.chat-area').scrollTop($('.chat-area')[0].scrollHeight);
 </script>
 }
