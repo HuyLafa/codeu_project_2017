@@ -203,7 +203,7 @@ function addLeftMessage(username, container, message, time) {
     <div class="chat_time pull-left"><strong>${username}</strong></div>
     <br>
     <span class="chat-img1 pull-left">
-    <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
+    <img src="/assets/images/sample-avatar.png" alt="User Avatar"
          class="img-circle">
     </span>
      <div class="chat-body1 clearfix">
@@ -221,7 +221,7 @@ function addRightMessage(username, container, message, time) {
       <div class="chat_time pull-right"><strong>${username}</strong></div>
       <br>
       <span class="chat-img1 pull-right">
-      <img src="https://pldh.net/media/dreamworld/054.png" alt="User Avatar"
+      <img src="/assets/images/sample-avatar.png" alt="User Avatar"
            class="img-circle">
       </span>
        <div class="chat-body1 clearfix">
