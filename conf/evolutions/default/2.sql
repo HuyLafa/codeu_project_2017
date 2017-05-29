@@ -5,7 +5,7 @@ CREATE TABLE chatrooms (
   'name' VARCHAR NOT NULL
 );
 
-CREATE TABLE message (
+CREATE TABLE messages (
   'chatroom_uuid' VARCHAR,
   'author_uuid' VARCHAR,
   'message' VARCHAR,
@@ -15,4 +15,4 @@ CREATE TABLE message (
 
 # --- !Downs
 DROP TABLE chatrooms;
-DROP TABLE message;
+DROP TABLE messages;

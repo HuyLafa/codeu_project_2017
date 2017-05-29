@@ -54,7 +54,7 @@ public class ChatController extends Controller {
     this.db = db;
 
     // create two default public rooms
-    String adminID = getUuidFromUsername("admin");
+    String adminID = getUuidFromName("users", "admin");
     addConversation("public", adminID);
     addConversation("room1", adminID);
   }
@@ -90,6 +90,19 @@ public class ChatController extends Controller {
 //    flowMap.put(roomID, createUserFlowForRoom(roomID));
 //    return ok(roomID);
 //  }
+//
+  public Result newMessage() {
+    DynamicForm dynamicForm = formFactory.form().bindFromRequest();
+    String authorName = dynamicForm.get("authorName");
+    String roomName = getRoomNameFromURL(dynamicForm.get("websocketURL"));
+    String message = dynamicForm.get("message");
+
+    String authorID = getUuidFromName("users", authorName);
+    String roomID = getUuidFromName("chatrooms", roomName);
+    addMessage(roomID, authorID, message);
+    System.out.println("heloooooooooo");
+    return ok();
+  }
 
   /**
    * Checks that the WebSocket comes from the same origin.  This is necessary to protect
@@ -135,19 +148,17 @@ public class ChatController extends Controller {
     return Flow.fromSinkAndSource(chatSink, chatSource).log(roomID, logging);
   }
 
-  private String getUuidFromUsername(String username) {
+  private String getUuidFromName(String table, String name) {
     try {
-      System.out.println(this.db);
-      Connection conn = this.db.getConnection();
-      String sqlQuery = "SELECT uuid FROM users WHERE username = ?";
+      Connection conn = db.getConnection();
+      String sqlQuery = "SELECT uuid FROM " + table + " WHERE name = ?";
       PreparedStatement getID = conn.prepareStatement(sqlQuery);
-      getID.setString(1, username);
+      getID.setString(1, name);
       ResultSet queryResult = getID.executeQuery();
       if (queryResult.next()) {
         String uuid = queryResult.getString("UUID");
         getID.close();
         conn.close();
-        System.out.println("admin id before: " + uuid);
         return uuid;
       } else {
         conn.close();
@@ -159,17 +170,18 @@ public class ChatController extends Controller {
     }
   }
 
-  private String getUsernameFromUuid(String uuid) {
+
+  private String getNameFromUuid(String table, String uuid) {
     try {
       Connection conn = db.getConnection();
-      String sqlQuery = "SELECT username FROM users WHERE uuid = ?";
+      String sqlQuery = "SELECT name FROM " + table + " WHERE uuid = ?";
       PreparedStatement getID = conn.prepareStatement(sqlQuery);
       getID.setString(1, uuid);
       ResultSet queryResult = getID.executeQuery();
       if (queryResult.next()) {
         conn.close();
-        String username = queryResult.getString("username");
-        return username;
+        String name = queryResult.getString("name");
+        return name;
       } else {
         conn.close();
         return null;
@@ -202,6 +214,7 @@ public class ChatController extends Controller {
     }
   }
 
+
   private Conversation newConversation(String title, Uuid owner)  {
 
     Conversation response = null;
@@ -225,5 +238,26 @@ public class ChatController extends Controller {
     }
 
     return response;
+  }
+
+  private void addMessage(String chatroomID, String authorID, String message) {
+    try {
+      Connection conn = db.getConnection();
+      String query = "INSERT INTO messages(chatroom_uuid, author_uuid, message) VALUES (?,?,?)";
+      PreparedStatement statement = conn.prepareStatement(query);
+      statement.setString(1, chatroomID);
+      statement.setString(2, authorID);
+      statement.setString(3, message);
+      statement.executeUpdate();
+      statement.close();
+      conn.close();
+    } catch (SQLException e) {
+      LOG.error("error adding message to database");
+    }
+  }
+
+  private String getRoomNameFromURL(String websocketURL) {
+    int slashIndex = websocketURL.lastIndexOf('/');
+    return websocketURL.substring(slashIndex + 1);
   }
 }

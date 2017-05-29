@@ -2,12 +2,12 @@
 
 CREATE TABLE users (
   'uuid' VARCHAR PRIMARY KEY,
-  'username' VARCHAR UNIQUE NOT NULL,
+  'name' VARCHAR UNIQUE NOT NULL,
   'password' VARCHAR NOT NULL,
   'email' VARCHAR
 );
 
-CREATE UNIQUE INDEX username_index ON users ('username');
+CREATE UNIQUE INDEX username_index ON users ('name');
 
 # --- !Downs
 DROP TABLE users;

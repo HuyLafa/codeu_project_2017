@@ -41,7 +41,7 @@ public class LoginController extends Controller {
     try {
       User admin = newUser("admin");
       Connection conn = db.getConnection();
-      String insertQuery = "INSERT OR IGNORE INTO users(uuid, username, password) VALUES(?, ?, ?)";
+      String insertQuery = "INSERT OR IGNORE INTO users(uuid, name, password) VALUES(?, ?, ?)";
       PreparedStatement insertAdmin = conn.prepareStatement(insertQuery);
       insertAdmin.setString(1, admin.id.toString());
       insertAdmin.setString(2, "admin");
@@ -74,7 +74,7 @@ public class LoginController extends Controller {
 
       // database query
       Connection conn = db.getConnection();
-      String findQuery = "SELECT * FROM Users where Username = ?";
+      String findQuery = "SELECT * FROM Users where name = ?";
       PreparedStatement getUser = conn.prepareStatement(findQuery);
       getUser.setString(1, username);
       ResultSet queryResult = getUser.executeQuery();
@@ -92,7 +92,7 @@ public class LoginController extends Controller {
       User newUser = newUser(username);
 
       // add user to the database
-      String addQuery = "INSERT INTO Users(username, password, uuid) VALUES (?, ?, ?)";
+      String addQuery = "INSERT INTO Users(name, password, uuid) VALUES (?, ?, ?)";
       PreparedStatement addUser = conn.prepareStatement(addQuery);
       addUser.setString(1, username);
       addUser.setString(2, password);
@@ -132,14 +132,14 @@ public class LoginController extends Controller {
 
       // database query
       Connection conn = db.getConnection();
-      String query = "SELECT password FROM Users WHERE Username = ?";
+      String query = "SELECT password FROM Users WHERE name = ?";
       PreparedStatement getPassword = conn.prepareStatement(query);
       getPassword.setString(1, username);
       ResultSet queryResult = getPassword.executeQuery();
 
       // if passwords match, redirect to chat page
       if (queryResult.next()) {
-        String savedPassword = queryResult.getString("PASSWORD");
+        String savedPassword = queryResult.getString("password");
         if (password.equals(savedPassword)) {
           session().clear();
           getPassword.close();
