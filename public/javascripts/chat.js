@@ -6,6 +6,7 @@ var websocketURL;
 function init(websocket, user) {
   username = user;
   websocketURL = websocket;
+  console.log(websocketURL);
   setupWebSocket(websocketURL, username);
 
   closeKeyboard();
@@ -93,13 +94,17 @@ function initInputBox() {
   $text.keypress(function(event) {
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if(keycode == '13'){
+      var inputText = $text.val();
       var msg = {
         author : username,
-        message : $text.val(),
+        message : inputText,
         date : Date.now(),
       }
       $text.val("");
       connection.send(JSON.stringify(msg));
+      $.post("/new-message", {"authorName" : username, "websocketURL" : websocketURL, "message" : inputText}, function() {
+        console.log("post request sent");
+      });
     }
   });
 }
@@ -161,13 +166,15 @@ var setupMathInput = function() {
 	$('#mathquill').keypress(function(event) {
 	  var keycode = (event.keyCode ? event.keyCode : event.which);
     if(keycode == '13'){
+      var inputText = "$$" + mathField.latex() + "$$";
       var msg = {
         author : username,
-        message : "$$" + mathField.latex() + "$$",
+        message : inputText,
         date : Date.now(),
       }
       connection.send(JSON.stringify(msg));
       mathField.latex("");
+      $.post("/new-message", {"authorName" : username, "websocketURL" : websocketURL, "message" : inputText});
     }
 	});
 
