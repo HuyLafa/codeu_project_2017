@@ -2,7 +2,7 @@
 
 CREATE TABLE chatrooms (
   'uuid' VARCHAR PRIMARY KEY,
-  'name' VARCHAR NOT NULL
+  'name' VARCHAR NOT NULL UNIQUE
 );
 
 CREATE TABLE messages (

@@ -23,18 +23,14 @@ import play.libs.F;
 import play.mvc.Controller;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.HashMap;
 
 import views.html.chat;
 import models.ChatMessage;
+import models.DBUtility;
 
 /**
  * A chat client using WebSocket.
@@ -48,17 +44,14 @@ public class ChatController extends Controller {
   private Materializer mat;
   private Database db;
   @Inject FormFactory formFactory;
+  @Inject private play.Environment environment;
 
   @Inject
   public ChatController(ActorSystem actorSystem, Materializer mat, Database db) {
     this.actorSystem = actorSystem;
     this.mat = mat;
     this.db = db;
-
-    // create two default public rooms
-    String adminID = getUuidFromName("users", "admin");
-    addConversation("public", adminID);
-    addConversation("room1", adminID);
+    createInitialHubs();
   }
 
   public Result index() {
@@ -75,19 +68,20 @@ public class ChatController extends Controller {
     String url = routes.ChatController.websocket(roomName).webSocketURL(request);
 
     // get past messages from the database
-    ArrayList<ChatMessage> messages = getAllMessages(roomName);
+    ArrayList<ChatMessage> messages = DBUtility.getAllMessages(db, roomName);
     return ok(chat.render(session("username"), url, flowMap.keySet(), messages));
   }
 
 
   public WebSocket websocket(String roomID) {
-    return WebSocket.Text.acceptOrResult(request -> {
+    WebSocket webSocket =  WebSocket.Text.acceptOrResult(request -> {
       if (sameOriginCheck(request)) {
         return CompletableFuture.completedFuture(F.Either.Right(flowMap.get(roomID)));
       } else {
         return CompletableFuture.completedFuture(F.Either.Left(forbidden()));
       }
     });
+    return webSocket;
   }
 
 
@@ -105,9 +99,9 @@ public class ChatController extends Controller {
     String message = dynamicForm.get("message");
     String time = dynamicForm.get("time");
 
-    String authorID = getUuidFromName("users", authorName);
-    String roomID = getUuidFromName("chatrooms", roomName);
-    addMessage(roomID, authorID, message, time);
+    String authorID = DBUtility.getUuidFromName(db, "users", authorName);
+    String roomID = DBUtility.getUuidFromName(db, "chatrooms", roomName);
+    DBUtility.addMessage(db, roomID, authorID, message, time);
     return ok();
   }
 
@@ -132,163 +126,43 @@ public class ChatController extends Controller {
     if (origin == null) return false;
     try {
       URL url = new URL(origin);
-      return url.getHost().equals("localhost")
-              && (url.getPort() == 9000 || url.getPort() == 19001);
+      if (environment.isDev()) {
+        return url.getHost().equals("localhost") && (url.getPort() == 9000);
+      }
+      else if (environment.isProd()) {
+        return url.getHost().equals("chatapp-huylafa.boxfuse.io") && (url.getPort() == 9000);
+      }
+      else {
+        return false;
+      }
     } catch (Exception e ) {
       return false;
     }
   }
 
-  private Flow<String, String, NotUsed> createUserFlowForRoom(String roomID) {
+  private void createInitialHubs() {
+    ArrayList<String> chatroomNames = DBUtility.getAllChatroomNames(db);
+    for (String name : chatroomNames) {
+      if (!flowMap.containsKey(name)) {
+        flowMap.put(name, createUserFlowForRoom(name));
+      }
+    }
+  }
+
+  private Flow<String, String, NotUsed> createUserFlowForRoom(String roomName) {
     org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
     LoggingAdapter logging = Logging.getLogger(actorSystem.eventStream(), logger.getName());
 
     //noinspection unchecked
     Source<String, Sink<String, NotUsed>> source = MergeHub.of(String.class)
-            .log(roomID, logging)
+            .log(roomName, logging)
             .recoverWithRetries(-1, new PFBuilder().match(Throwable.class, e -> Source.empty()).build());
     Sink<String, Source<String, NotUsed>> sink = BroadcastHub.of(String.class);
 
     Pair<Sink<String, NotUsed>, Source<String, NotUsed>> sinkSourcePair = source.toMat(sink, Keep.both()).run(mat);
     Sink<String, NotUsed> chatSink = sinkSourcePair.first();
     Source<String, NotUsed> chatSource = sinkSourcePair.second();
-    return Flow.fromSinkAndSource(chatSink, chatSource).log(roomID, logging);
-  }
-
-  private String getUuidFromName(String table, String name) {
-    try {
-      Connection conn = db.getConnection();
-      String sqlQuery = "SELECT uuid FROM " + table + " WHERE name = ?";
-      PreparedStatement getID = conn.prepareStatement(sqlQuery);
-      getID.setString(1, name);
-      ResultSet queryResult = getID.executeQuery();
-      if (queryResult.next()) {
-        String uuid = queryResult.getString("UUID");
-        getID.close();
-        conn.close();
-        return uuid;
-      } else {
-        conn.close();
-        return null;
-      }
-    } catch (SQLException e) {
-      LOG.error("Error in database query: " + e);
-      return null;
-    }
-  }
-
-
-  private String getNameFromUuid(String table, String uuid) {
-    try {
-      Connection conn = db.getConnection();
-      String sqlQuery = "SELECT name FROM " + table + " WHERE uuid = ?";
-      PreparedStatement getID = conn.prepareStatement(sqlQuery);
-      getID.setString(1, uuid);
-      ResultSet queryResult = getID.executeQuery();
-      if (queryResult.next()) {
-        String name = queryResult.getString("name");
-        queryResult.close();
-        conn.close();
-        return name;
-      } else {
-        conn.close();
-        return null;
-      }
-    } catch (SQLException e) {
-      LOG.error("Error in database query: " + e);
-      return null;
-    }
-  }
-
-  private void addConversation(String title, String ownerID) {
-    try {
-      // add conversation to database
-      Connection conn = db.getConnection();
-      Conversation newConv = newConversation(title, Uuid.parse(ownerID));
-      String sqlQuery = "INSERT OR IGNORE INTO chatrooms(uuid, name) VALUES (?, ?)";
-      PreparedStatement insert = conn.prepareStatement(sqlQuery);
-      insert.setString(1, newConv.id.toString());
-      insert.setString(2, title);
-      insert.executeUpdate();
-      insert.close();
-      conn.close();
-
-      // add hub
-      flowMap.put(title, createUserFlowForRoom(ownerID));
-    } catch (IOException e) {
-      LOG.error("Error creating UUID for conversation" + e);
-    } catch (SQLException e) {
-      LOG.error("Error adding conversation to database " + e);
-    }
-  }
-
-
-  private Conversation newConversation(String title, Uuid owner)  {
-
-    Conversation response = null;
-
-    try (final codeu.chat.util.connections.Connection connection = LoginController.source.connect()) {
-
-      // serialize the parameters
-      Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_CONVERSATION_REQUEST);
-      Serializers.STRING.write(connection.out(), title);
-      Uuid.SERIALIZER.write(connection.out(), owner);
-
-      // send to server and deserialize response
-      if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_CONVERSATION_RESPONSE) {
-        response = Serializers.nullable(Conversation.SERIALIZER).read(connection.in());
-      } else {
-        LOG.error("Response from server failed.");
-      }
-    } catch (Exception ex) {
-      System.out.println("ERROR: Exception during call on server. Check log for details.");
-      LOG.error(ex, "Exception during call on server.");
-    }
-
-    return response;
-  }
-
-  private void addMessage(String chatroomID, String authorID, String message, String time) {
-    try {
-      Connection conn = db.getConnection();
-      String query = "INSERT INTO messages(chatroom_uuid, author_uuid, message, time) VALUES (?,?,?,?)";
-      PreparedStatement statement = conn.prepareStatement(query);
-      statement.setString(1, chatroomID);
-      statement.setString(2, authorID);
-      statement.setString(3, message);
-      statement.setString(4, time);
-      statement.executeUpdate();
-      statement.close();
-      conn.close();
-    } catch (SQLException e) {
-      LOG.error("error adding message to database");
-    }
-  }
-
-  private ArrayList<ChatMessage> getAllMessages(String chatroomName) {
-    ArrayList<ChatMessage> result = new ArrayList<>();
-    try {
-      String chatroomID = getUuidFromName("chatrooms", chatroomName);
-      String query = "SELECT * FROM messages WHERE chatroom_uuid = ?";
-      Connection conn = db.getConnection();
-      PreparedStatement statement = conn.prepareStatement(query);
-      statement.setString(1, chatroomID);
-      ResultSet messages =  statement.executeQuery();
-      while (messages.next()) {
-        String authorID = messages.getString("author_uuid");
-        String author = getNameFromUuid("users", authorID);
-        String message = messages.getString("message");
-        String time = messages.getString("time");
-        ChatMessage chatMessage = new ChatMessage(author, message, time);
-        result.add(chatMessage);
-      }
-      messages.close();
-      conn.close();
-    } catch (SQLException e) {
-      LOG.error("error retrieving messages from chat room " + chatroomName);
-    } finally {
-      return result;
-    }
+    return Flow.fromSinkAndSource(chatSink, chatSource).log(roomName, logging);
   }
 
   private String getRoomNameFromURL(String websocketURL) {
