@@ -1,9 +1,12 @@
+import codeu.chat.ServerMain;
 import codeu.chat.common.User;
 import models.DBUtility;
 import play.GlobalSettings;
 import play.Application;
 
 import java.sql.DriverManager;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Play's Global class, which runs custom code when the application starts / ends.
@@ -15,6 +18,16 @@ public class Global extends GlobalSettings {
    * @param app this application.
    */
   public void onStart(Application app) {
+
+    // run "sh run_server.sh" in background
+
+    ExecutorService service = Executors.newFixedThreadPool(4);
+    service.submit(new Runnable() {
+      public void run() {
+        (new ServerMain()).runServer();
+      }
+    });
+
     // connect to the database
     try {
       String url = "jdbc:sqlite:./conf/chatapp.db";

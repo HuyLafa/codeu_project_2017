@@ -30,11 +30,16 @@ import codeu.chat.util.connections.Connection;
 import codeu.chat.util.connections.ConnectionSource;
 import codeu.chat.util.connections.ServerConnectionSource;
 
-final class ServerMain {
+public final class ServerMain {
 
   private static final Logger.Log LOG = Logger.newLog(ServerMain.class);
 
-  public static void main(String[] args) {
+  public static void runServer() {
+    String[] args = {"100", "ABABAB", "2007", "persistent-data"};
+    runServer(args);
+  }
+
+  public static void runServer(String[] args) {
 
     Logger.enableConsoleOutput();
 
