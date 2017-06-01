@@ -77,6 +77,7 @@ function setupWebSocket(websocketURL, username) {
     };
 
     connection.onmessage = function (event) {
+      console.log("event data: " + event.data);
       var msg = JSON.parse(event.data);
       addMessage(msg.author, $messages, msg.message, msg.date);
       $('.chat-area').scrollTop($('.chat-area')[0].scrollHeight);
@@ -90,6 +91,9 @@ function initInputBox() {
     if(keycode == '13'){
       event.preventDefault();
       var inputText = $text.val();
+      if (inputText == null || inputText == "") {
+        return;
+      }
       var currentDate = Date.now().toString();
       var msg = {
         author : username,
@@ -98,12 +102,6 @@ function initInputBox() {
       }
       $text.val("");
       connection.send(JSON.stringify(msg));
-      $.post("/new-message", {
-        "authorName" : username,
-        "websocketURL" : websocketURL,
-        "message" : inputText,
-        "time" : currentDate
-      });
     }
   });
 }
@@ -166,7 +164,11 @@ var setupMathInput = function() {
 	  var keycode = (event.keyCode ? event.keyCode : event.which);
     if(keycode == '13'){
       event.preventDefault();
-      var inputText = "$$" + mathField.latex() + "$$";
+      var inputText = mathField.latex();
+      if (inputText == null || inputText == "") {
+        return;
+      }
+      inputText = "$$" + inputText + "$$";
       var currentDate = Date.now().toString();
       var msg = {
         author : username,
@@ -175,12 +177,6 @@ var setupMathInput = function() {
       }
       connection.send(JSON.stringify(msg));
       mathField.latex("");
-      $.post("/new-message", {
-        "authorName" : username,
-        "websocketURL" : websocketURL,
-        "message" : inputText,
-        "time" : currentDate
-      });
     }
 	});
 

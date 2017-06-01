@@ -1,11 +1,7 @@
 package controllers;
 
-import codeu.chat.common.Conversation;
-import codeu.chat.common.NetworkCode;
-import codeu.chat.util.Logger;
-import codeu.chat.util.Serializers;
-import codeu.chat.util.Uuid;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.*;
@@ -19,18 +15,17 @@ import akka.japi.pf.PFBuilder;
 import akka.stream.Materializer;
 import akka.stream.javadsl.*;
 import akka.event.Logging;
-import play.libs.F;
-import play.mvc.Controller;
 
 import javax.inject.Inject;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
-import views.html.chat;
 import models.ChatMessage;
 import models.DBUtility;
+
+import views.html.chat;
+import play.libs.F;
 
 /**
  * A chat client using WebSocket.
@@ -39,12 +34,10 @@ public class ChatController extends Controller {
 
   // maps a room ID to the user flow for that room
   private HashMap<String,Flow<String, String, NotUsed>> flowMap = new HashMap<>();
-  private static final Logger.Log LOG = Logger.newLog(ChatController.class);
   private ActorSystem actorSystem;
   private Materializer mat;
   private Database db;
   @Inject FormFactory formFactory;
-  @Inject private play.Environment environment;
 
   @Inject
   public ChatController(ActorSystem actorSystem, Materializer mat, Database db) {
@@ -73,15 +66,12 @@ public class ChatController extends Controller {
   }
 
 
-  public WebSocket websocket(String roomID) {
-    WebSocket webSocket =  WebSocket.Text.acceptOrResult(request -> {
-      if (sameOriginCheck(request)) {
-        return CompletableFuture.completedFuture(F.Either.Right(flowMap.get(roomID)));
-      } else {
-        return CompletableFuture.completedFuture(F.Either.Left(forbidden()));
-      }
+  public WebSocket websocket(String roomName) {
+    return WebSocket.Text.acceptOrResult(request -> {
+      return CompletableFuture.completedFuture(F.Either.Right(flowMap.get(roomName)));
     });
-    return webSocket;
+    
+
   }
 
 
@@ -105,40 +95,8 @@ public class ChatController extends Controller {
     return ok();
   }
 
-  /**
-   * Checks that the WebSocket comes from the same origin.  This is necessary to protect
-   * against Cross-Site WebSocket Hijacking as WebSocket does not implement Same Origin Policy.
-   *
-   * See https://tools.ietf.org/html/rfc6455#section-1.3 and
-   * http://blog.dewhurstsecurity.com/2013/08/30/security-testing-html5-websockets.html
-   */
-  private boolean sameOriginCheck(Http.RequestHeader request) {
-    String[] origins = request.headers().get("Origin");
-    if (origins.length > 1) {
-      // more than one origin found
-      return false;
-    }
-    String origin = origins[0];
-    return originMatches(origin);
-  }
 
-  private boolean originMatches(String origin) {
-    if (origin == null) return false;
-    try {
-      URL url = new URL(origin);
-      if (environment.isDev()) {
-        return url.getHost().equals("localhost") && (url.getPort() == 9000);
-      }
-      else if (environment.isProd()) {
-        return url.getHost().equals("chatapp-huylafa.boxfuse.io") && (url.getPort() == 9000);
-      }
-      else {
-        return false;
-      }
-    } catch (Exception e ) {
-      return false;
-    }
-  }
+
 
   private void createInitialHubs() {
     ArrayList<String> chatroomNames = DBUtility.getAllChatroomNames(db);
