@@ -1,4 +1,4 @@
-@(username: String, websocketURL: String, roomIDs: Set[String], messages: List[ChatMessage])
+@(username: String, websocketURL: String, roomIDs: Set[String])
 @*
 * The chat interface
 * Source: http://bootsnipp.com/snippets/vrzGb
@@ -53,8 +53,8 @@
             <div class="col-sm-9 message-section">
                 <div class="row">
                     <div class="new-message-head">
-                        <div class="pull-left">
-                            <button><i class="fa fa-plus-square-o" aria-hidden="true" id="new-conversation"></i>
+                        <div class="pull-left" id="new-conversation">
+                            <button><i class="fa fa-plus-square-o" aria-hidden="true"></i>
                                 New Conversation
                             </button>
                         </div>
@@ -109,10 +109,6 @@
     // initialize the UI
     init("@websocketURL", "@username");
 
-    // populate the message field with past messages
-    @for(message <- messages) {
-        addMessage("@message.author", $("#chat-list"), "@message.message", "@message.time");
-    }
     $('.chat-area').scrollTop($('.chat-area')[0].scrollHeight);
 </script>
 }

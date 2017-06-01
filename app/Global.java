@@ -22,12 +22,12 @@ public class Global extends GlobalSettings {
       if (!adminExists) {
         // create a default admin account
         User admin = DBUtility.addUser(DriverManager.getConnection(url), "admin", "123456");
-
-        // create two default public rooms
-        String adminID = admin.id.toString();
-        DBUtility.addConversation(DriverManager.getConnection(url), "public", adminID);
-        DBUtility.addConversation(DriverManager.getConnection(url), "room1", adminID);
       }
+
+      System.out.println("hello world");
+      // create two default public rooms
+      DBUtility.addConversation(DriverManager.getConnection(url), "public");
+      DBUtility.addConversation(DriverManager.getConnection(url), "room1");
 
     } catch (Exception e) {
       e.printStackTrace();

@@ -1,16 +1,15 @@
 # --- !Ups
 
 CREATE TABLE chatrooms (
-  'uuid' VARCHAR PRIMARY KEY,
-  'name' VARCHAR NOT NULL UNIQUE
+  'name' VARCHAR PRIMARY KEY
 );
 
 CREATE TABLE messages (
-  'chatroom_uuid' VARCHAR,
+  'roomname' VARCHAR,
   'author_uuid' VARCHAR,
   'message' VARCHAR,
   'time' VARCHAR,
-  FOREIGN KEY ('chatroom_uuid') REFERENCES chatrooms(uuid),
+  FOREIGN KEY ('roomname') REFERENCES chatrooms(name),
   FOREIGN KEY ('author_uuid') REFERENCES users(uuid)
 )
 

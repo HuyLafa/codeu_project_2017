@@ -1,5 +1,6 @@
 package controllers;
 
+import codeu.chat.util.Uuid;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import play.data.DynamicForm;
@@ -63,8 +64,8 @@ public class ChatController extends Controller {
     String url = routes.ChatController.websocket(roomName).webSocketURL(request);
 
     // get past messages from the database
-    ArrayList<ChatMessage> messages = DBUtility.getAllMessages(db, roomName);
-    return ok(chat.render(session("username"), url, flowMap.keySet(), messages));
+//    ArrayList<ChatMessage> messages = DBUtility.getAllMessages(db, roomName);
+    return ok(chat.render(session("username"), url, flowMap.keySet()));
   }
 
 
@@ -72,18 +73,19 @@ public class ChatController extends Controller {
     return WebSocket.Text.acceptOrResult(request -> {
       return CompletableFuture.completedFuture(F.Either.Right(flowMap.get(roomName)));
     });
-    
-
   }
 
+  public Result newConversation() {
+    DynamicForm dynamicForm = formFactory.form().bindFromRequest();
+    String roomName = dynamicForm.get("roomName");
+    String ownerName = dynamicForm.get("owner");
+    String ownerID = DBUtility.getUuidFromName(db, "users", ownerName);
+    System.out.println("owner ID is: " + ownerID);
+    DBUtility.addConversation(db, roomName);
+    flowMap.put(roomName, createUserFlowForRoom(roomName));
+    return ok(roomName);
+  }
 
-//  public Result newConversation() {
-//    DynamicForm dynamicForm = formFactory.form().bindFromRequest();
-//    String roomID = dynamicForm.get("roomID");
-//    flowMap.put(roomID, createUserFlowForRoom(roomID));
-//    return ok(roomID);
-//  }
-//
   public Result newMessage() {
     DynamicForm dynamicForm = formFactory.form().bindFromRequest();
     String authorName = dynamicForm.get("authorName");

@@ -194,29 +194,22 @@ public class DBUtility {
     return addUser(db.getConnection(), username, password);
   }
 
-  public static Conversation addConversation(Connection conn, String title, String ownerID) {
+  public static void addConversation(Connection conn, String title) {
     try {
       // add conversation to database
-      Conversation newConv = Models.newConversation(title, Uuid.parse(ownerID));
-      String sqlQuery = "INSERT OR IGNORE INTO chatrooms(uuid, name) VALUES (?, ?)";
+      String sqlQuery = "INSERT OR IGNORE INTO chatrooms(name) VALUES (?)";
       PreparedStatement insert = conn.prepareStatement(sqlQuery);
-      insert.setString(1, newConv.id.toString());
-      insert.setString(2, title);
+      insert.setString(1, title);
       insert.executeUpdate();
       insert.close();
       conn.close();
-      return newConv;
-    } catch (IOException e) {
-      LOG.error("Error creating UUID for conversation" + e);
-      return null;
     } catch (SQLException e) {
       LOG.error("Error adding conversation to database " + e);
-      return null;
     }
   }
 
-  public static Conversation addConversation(Database db, String title, String ownerID) {
-    return addConversation(db.getConnection(), title, ownerID);
+  public static void addConversation(Database db, String title) {
+    addConversation(db.getConnection(), title);
   }
 
 }

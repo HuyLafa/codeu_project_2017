@@ -16,16 +16,13 @@ import controllers.LoginController;
  */
 public class Models {
 
-  private static final Logger.Log LOG = Logger.newLog(LoginController.class);
+  private static final Logger.Log LOG = Logger.newLog(Models.class);
   public static final ConnectionSource source = establishSource();
 
   private static ClientConnectionSource establishSource() {
     try {
-      if (source == null) {
-        RemoteAddress address = RemoteAddress.parse("localhost@2007");
-        return new ClientConnectionSource(address.host, address.port);
-      }
-
+      RemoteAddress address = RemoteAddress.parse("localhost@2007");
+      return new ClientConnectionSource(address.host, address.port);
     } catch (Exception ex) {
       System.out.println("ERROR: Exception setting up client. Check log for details.");
       LOG.error(ex, "Exception setting up client.");
@@ -38,7 +35,6 @@ public class Models {
     Conversation response = null;
 
     try (final codeu.chat.util.connections.Connection connection = source.connect()) {
-
       // serialize the parameters
       Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_CONVERSATION_REQUEST);
       Serializers.STRING.write(connection.out(), title);
@@ -48,13 +44,13 @@ public class Models {
       if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_CONVERSATION_RESPONSE) {
         response = Serializers.nullable(Conversation.SERIALIZER).read(connection.in());
       } else {
-        LOG.error("Response from server failed.");
+        System.out.println("Response from server failed.");
       }
     } catch (Exception ex) {
       System.out.println("ERROR: Exception during call on server. Check log for details.");
       LOG.error(ex, "Exception during call on server.");
     }
-
+    System.out.println("return response" + response);
     return response;
   }
 

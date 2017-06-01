@@ -27,14 +27,14 @@ function init(websocket, user) {
 
   // add conversation
   $('#new-conversation').on("click", function() {
-    var roomID = prompt("Please enter the room name");
-    if (roomID != null) {
-      $.post(`/new-conversation/`, { 'roomID': roomID }, function(data) {
+    var roomName = prompt("Please enter the room name");
+    if (roomName != null) {
+      $.post(`/new-conversation`, { 'roomName': roomName, 'owner' : username }, function(data) {
         $('.member-list ul').append(`
-          <li class="left clearfix" id=${roomID}>
+          <li class="left clearfix" id=${roomName}>
               <span class="chat-img pull-left">
                   <img
-                    src="https://lh6.googleusercontent.com/-y-MY2satK-E/AAAAAAAAAAI/AAAAAAAAAJU/ER_hFddBheQ/photo.jpg"
+                    src="/assets/images/conversation.jpeg"
                     alt="User Avatar"
                     class="img-circle"
                   >
@@ -51,7 +51,7 @@ function init(websocket, user) {
               </div>
           </li>
         `).on("click", function() {
-          var url = `/chat/${roomID}`;
+          var url = `/chat/${roomName}`;
           window.location.replace(url);
         });
       });
