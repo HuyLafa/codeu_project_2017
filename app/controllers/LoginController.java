@@ -18,18 +18,33 @@ import models.DBUtility;
 @Singleton
 public class LoginController extends Controller {
 
+  // injected database instance
   private Database db;
+
+  // a tool to extract parameter values from HTTP requests
   @Inject FormFactory formFactory;
 
+
+  /**
+   * Constructor used for dependency injection.
+   */
   @Inject
   public LoginController(Database inputDB) {
     db = inputDB;
   }
 
+  /**
+   * Display the default login page.
+   * @return the login page.
+   */
   public Result display() {
     return ok(login.render());
   }
 
+  /**
+   * Accepts a request to create account and call the corresponding backend database method.
+   * @return the login page with the output message (success / error)
+   */
   public Result createAccount() {
     DynamicForm formData = formFactory.form().bindFromRequest();
     if (formData.hasErrors()) {
@@ -56,8 +71,7 @@ public class LoginController extends Controller {
   }
 
   /**
-   * Initialize the controller and the view based on connection source,
-   * then redirect to login page.
+   * Initialize the controller and the view based on connection source, then redirect to login page.
    */
   public Result index() {
       // if user already logged in
@@ -68,6 +82,10 @@ public class LoginController extends Controller {
       return redirect(routes.LoginController.display());
   }
 
+  /**
+   * Accept a request to log in from the user, and call the database methods to check login credentials.
+   * @return the login page with error message if there's an error, or the chat page is login is successful.
+   */
   public Result login() {
     DynamicForm formData = formFactory.form().bindFromRequest();
     if (formData.hasErrors()) {
@@ -93,6 +111,10 @@ public class LoginController extends Controller {
     }
   }
 
+  /**
+   * Log the user out by clearing the session.
+   * @return the login page.
+   */
   public Result logout() {
     session().clear();
     flash("success", "Log out successfully.");

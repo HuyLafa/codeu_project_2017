@@ -16,12 +16,22 @@ import controllers.LoginController;
  */
 public class Models {
 
+  // the logger to output error messages
   private static final Logger.Log LOG = Logger.newLog(Models.class);
+
+  // the source that connects to the server.
   public static final ConnectionSource source = establishSource();
 
+  // the default remote address
+  static final String REMOTE_ADDRESS = "localhost@2007";
+
+  /**
+   * Establish a connection to a server at the default remote address.
+   * @return a <tt>ClientConnectionSource</tt> instance.
+   */
   private static ClientConnectionSource establishSource() {
     try {
-      RemoteAddress address = RemoteAddress.parse("localhost@2007");
+      RemoteAddress address = RemoteAddress.parse(REMOTE_ADDRESS);
       return new ClientConnectionSource(address.host, address.port);
     } catch (Exception ex) {
       System.out.println("ERROR: Exception setting up client. Check log for details.");
@@ -30,6 +40,12 @@ public class Models {
     return null;
   }
 
+  /**
+   * Create a new chatroom.
+   * @param title the name of the chatroom.
+   * @param owner the uuid of the user that creates this chatroom.
+   * @return an instance of <tt>Conversation</tt> containing the input information.
+   */
   public static Conversation newConversation(String title, Uuid owner)  {
 
     Conversation response = null;
@@ -54,6 +70,11 @@ public class Models {
     return response;
   }
 
+  /**
+   * Create a new user.
+   * @param name the username.
+   * @return an instance of <tt>User</tt> containing the input information.
+   */
   public static User newUser(String name) {
 
     User response = null;

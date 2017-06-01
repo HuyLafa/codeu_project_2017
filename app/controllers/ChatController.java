@@ -37,11 +37,23 @@ public class ChatController extends Controller {
 
   // maps a room ID to the user flow for that room
   private HashMap<String,Flow<String, String, NotUsed>> flowMap = new HashMap<>();
+
+  // injected materials for creating user flow
   private ActorSystem actorSystem;
   private Materializer mat;
+
+  // injected database instance
   private Database db;
+
+  // a tool to extract parameter values from HTTP requests
   @Inject FormFactory formFactory;
 
+  // the default chatroom that the user enters after logging in
+  final String DEFAULT_CHATROOM = "public";
+
+  /**
+   * Constructor used for dependency injection.
+   */
   @Inject
   public ChatController(ActorSystem actorSystem, Materializer mat, Database db) {
     this.actorSystem = actorSystem;
@@ -50,10 +62,19 @@ public class ChatController extends Controller {
     createInitialHubs();
   }
 
+  /**
+   * The default Action after the user logs in
+   * @return a redirect to the default chatroom.
+   */
   public Result index() {
-    return redirect(routes.ChatController.chatroom("public"));
+    return redirect(routes.ChatController.chatroom(DEFAULT_CHATROOM));
   }
 
+  /**
+   * Get the chatroom with the specified name, or redirect to login page if user is not logged in
+   * @param roomName the input room name.
+   * @return the chatroom page with the corresponding websocket.
+   */
   public Result chatroom(String roomName) {
     if (session("username") == null) {
       return redirect(routes.LoginController.display());
@@ -62,30 +83,39 @@ public class ChatController extends Controller {
     // get the websocket URL
     Http.Request request = request();
     String url = routes.ChatController.websocket(roomName).webSocketURL(request);
-
-    // get past messages from the database
-//    ArrayList<ChatMessage> messages = DBUtility.getAllMessages(db, roomName);
     return ok(chat.render(session("username"), url, flowMap.keySet()));
   }
 
-
+  /**
+   * Get a WebSocket for the specified room.
+   * @param roomName the input room name.
+   * @return a WebSocket with the corresponding user flow.
+   */
   public WebSocket websocket(String roomName) {
     return WebSocket.Text.acceptOrResult(request -> {
       return CompletableFuture.completedFuture(F.Either.Right(flowMap.get(roomName)));
     });
   }
 
+  /**
+   * Add a new chat room.
+   * @return the name of the added chat room.
+   */
   public Result newConversation() {
+    // extract parameters
     DynamicForm dynamicForm = formFactory.form().bindFromRequest();
     String roomName = dynamicForm.get("roomName");
-    String ownerName = dynamicForm.get("owner");
-    String ownerID = DBUtility.getUuidFromName(db, "users", ownerName);
-    System.out.println("owner ID is: " + ownerID);
+
+    // add chatroom to database
     DBUtility.addConversation(db, roomName);
     flowMap.put(roomName, createUserFlowForRoom(roomName));
     return ok(roomName);
   }
 
+  /**
+   * Add a new message.
+   * @return an OK status.
+   */
   public Result newMessage() {
     DynamicForm dynamicForm = formFactory.form().bindFromRequest();
     String authorName = dynamicForm.get("authorName");
@@ -99,9 +129,9 @@ public class ChatController extends Controller {
     return ok();
   }
 
-
-
-
+  /**
+   * Create a user flow for each chat room when the user first logs in.
+   */
   private void createInitialHubs() {
     ArrayList<String> chatroomNames = DBUtility.getAllChatroomNames(db);
     for (String name : chatroomNames) {
@@ -111,6 +141,11 @@ public class ChatController extends Controller {
     }
   }
 
+  /**
+   * Create a user flow for the specified room name.
+   * @param roomName the input room name.
+   * @return a flow created from a pair of Sink and Source from the injected materials.
+   */
   private Flow<String, String, NotUsed> createUserFlowForRoom(String roomName) {
     org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
     LoggingAdapter logging = Logging.getLogger(actorSystem.eventStream(), logger.getName());
@@ -127,6 +162,11 @@ public class ChatController extends Controller {
     return Flow.fromSinkAndSource(chatSink, chatSource).log(roomName, logging);
   }
 
+  /**
+   * Extract the chatroom's name from the WebSocket URL by taking the last part after "/"
+   * @param websocketURL the input WebSocket URL
+   * @return the chatroom's name.
+   */
   private String getRoomNameFromURL(String websocketURL) {
     int slashIndex = websocketURL.lastIndexOf('/');
     return websocketURL.substring(slashIndex + 1);

@@ -6,10 +6,14 @@ import play.Application;
 import java.sql.DriverManager;
 
 /**
- * Created by HuyNguyen on 5/29/17.
+ * Play's Global class, which runs custom code when the application starts / ends.
  */
 public class Global extends GlobalSettings {
 
+  /**
+   * Setting up the application when it starts by adding default user and chatrooms to the database.
+   * @param app this application.
+   */
   public void onStart(Application app) {
     // connect to the database
     try {
@@ -24,7 +28,6 @@ public class Global extends GlobalSettings {
         User admin = DBUtility.addUser(DriverManager.getConnection(url), "admin", "123456");
       }
 
-      System.out.println("hello world");
       // create two default public rooms
       DBUtility.addConversation(DriverManager.getConnection(url), "public");
       DBUtility.addConversation(DriverManager.getConnection(url), "room1");
