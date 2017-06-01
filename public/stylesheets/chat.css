@@ -150,7 +150,7 @@
 }
 .chat-area {
   float: left;
-  height: 535px;
+  height: 410px;
   overflow-x: hidden;
   overflow-y: auto;
   width: 100%;
@@ -432,6 +432,12 @@ ul.errorlist.nonfield {
   .desktop {
     display: block;
   }
+}
+
+.disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.6;
 }
 
 /* Overwrite default WolframAlpha widget size

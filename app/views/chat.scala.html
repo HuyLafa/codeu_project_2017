@@ -16,7 +16,8 @@
                     <div class="hello"><p>Hello @username !</p></div>
                     <div id="custom-search-input">
                         <div class="input-group col-md-12">
-                            <input type="text" class="search-query form-control" placeholder="Conversation"/>
+                            <input type="text" class="search-query form-control"
+                                   placeholder="Search conversation (not implemented)"/>
                             <button class="btn btn-danger" type="button">
                                 <span class="glyphicon glyphicon-search"></span>
                             </button>
@@ -65,8 +66,6 @@
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                                    <li><a href="#">Action</a></li>
-                                    <li><a href="#">Profile</a></li>
                                     <li><a href="/logout">Log out</a></li>
                                 </ul>
                             </div>
@@ -80,13 +79,19 @@
                         <div class="checkbox pull-left">
                             <label><input type="checkbox" id="typeMath">Type math</label>
                         </div>
-                        <a href="#" class="pull-right btn btn-primary">
+                        <a href="#" class="pull-right btn btn-primary disabled">
                             <i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Files
                         </a>
                         <div id="input-area">
                             <textarea class="form-control" placeholder="type a message" id="input-box"></textarea>
                         </div>
                         <div class="clearfix"></div>
+                        <div class="chat-bottom">
+                            <script type="text/javascript"
+                                    id="WolframAlphaScriptfbe3e3a58a92f7722e8159ccd44cf39b"
+                                    src="//www.wolframalpha.com/widget/widget.jsp?id=fbe3e3a58a92f7722e8159ccd44cf39b">
+                            </script>
+                        </div>
                     </div>
                 </div>
             </div> <!--message-section-->
