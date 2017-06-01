@@ -17,6 +17,7 @@ import akka.stream.javadsl.*;
 import akka.event.Logging;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +31,7 @@ import play.libs.F;
 /**
  * A chat client using WebSocket.
  */
+@Singleton
 public class ChatController extends Controller {
 
   // maps a room ID to the user flow for that room

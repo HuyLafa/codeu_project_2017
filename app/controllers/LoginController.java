@@ -1,6 +1,7 @@
 package controllers;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import play.mvc.Result;
 import play.mvc.Controller;
@@ -14,6 +15,7 @@ import models.DBUtility;
 /**
  * Created by HuyNguyen on 4/4/17.
  */
+@Singleton
 public class LoginController extends Controller {
 
   private Database db;
