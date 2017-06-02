@@ -21,11 +21,10 @@ public class Global extends GlobalSettings {
   public void onStart(Application app) {
 
     // run "sh run_server.sh" in background
-
     ExecutorService service = Executors.newFixedThreadPool(4);
     service.submit(new Runnable() {
       public void run() {
-        (new ServerMain()).runServer();
+        ServerMain.runServer();
       }
     });
 

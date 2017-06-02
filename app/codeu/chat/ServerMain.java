@@ -39,6 +39,10 @@ public final class ServerMain {
     runServer(args);
   }
 
+  public static void main(String[] args) {
+    runServer(args);
+  }
+
   public static void runServer(String[] args) {
 
     Logger.enableConsoleOutput();
@@ -97,6 +101,7 @@ public final class ServerMain {
     final Server server = new Server(id, secret, relay);
 
     LOG.info("Created server.");
+    isRunning = true;
 
     while (true) {
 
