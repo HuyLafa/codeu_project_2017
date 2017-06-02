@@ -305,6 +305,24 @@ public class DBUtility {
     }
   }
 
+  public static void addUserToRoom(Connection conn, String roomname, String user) {
+    try {
+      String sqlQuery = "INSERT INTO room_permissions(roomname, user) VALUES (?, ?)";
+      PreparedStatement insert = conn.prepareStatement(sqlQuery);
+      insert.setString(1, roomname);
+      insert.setString(2, user);
+      insert.executeUpdate();
+      insert.close();
+      conn.close();
+    } catch (SQLException e) {
+      LOG.error("Error adding conversation to database " + e);
+    }
+  }
+
+  public static void addUserToRoom(Database db, String roomname, String user) {
+    addUserToRoom(db.getConnection(), roomname, user);
+  }
+
   /**
    * Add a new chatroom to the database.
    * @param db the database instance.

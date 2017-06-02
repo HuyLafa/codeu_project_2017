@@ -111,6 +111,21 @@ public class ChatController extends Controller {
     flowMap.put(roomName, createUserFlowForRoom(roomName));
     return ok(roomName);
   }
+  /**
+  * Add a new user to a chat room
+  * @return the name of the user
+  */
+
+  public Result addUserToRoom() {
+    // extract parameters
+    DynamicForm dynamicForm = formFactory.form().bindFromRequest();
+    String roomname = dynamicForm.get("roomname");
+    String user = dynamicForm.get("user");
+
+    DBUtility.addUserToRoom(db, roomname, user);
+    return ok();
+
+  }
 
   /**
    * Add a new message.
