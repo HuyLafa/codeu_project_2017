@@ -16,10 +16,6 @@ package codeu.chat.common;
 
 import java.util.Collection;
 
-import codeu.chat.common.Conversation;
-import codeu.chat.common.ConversationSummary;
-import codeu.chat.common.Message;
-import codeu.chat.common.User;
 import codeu.chat.util.Uuid;
 
 // BASIC VIEW

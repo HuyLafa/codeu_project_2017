@@ -17,7 +17,6 @@ package codeu.chat.server;
 import java.util.Comparator;
 
 import codeu.chat.common.Conversation;
-import codeu.chat.common.ConversationSummary;
 import codeu.chat.common.LinearUuidGenerator;
 import codeu.chat.common.Message;
 import codeu.chat.common.User;

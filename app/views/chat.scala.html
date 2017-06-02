@@ -1,10 +1,13 @@
-@(username: String)
+@(username: String, websocketURL: String, roomIDs: Set[String])
 @*
 * The chat interface
 * Source: http://bootsnipp.com/snippets/vrzGb
 *@
 
 @main("Chat room") {
+<link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/keyboard.css")'>
+<link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/chat.css")'>
+} {
 <div class="main-section">
     <div class="container">
         <div class="chat-container">
@@ -13,35 +16,35 @@
                     <div class="hello"><p>Hello @username !</p></div>
                     <div id="custom-search-input">
                         <div class="input-group col-md-12">
-                            <input type="text" class="search-query form-control" placeholder="Conversation"/>
+                            <input type="text" class="search-query form-control"
+                                   placeholder="Search conversation (not implemented)"/>
                             <button class="btn btn-danger" type="button">
                                 <span class="glyphicon glyphicon-search"></span>
                             </button>
                         </div>
                     </div>
-                    <div class="dropdown all-conversation">
-                        <button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-weixin" aria-hidden="true"></i>
-                            All Conversations
-                            <span class="caret pull-right"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                            <li><a href="#"> All Conversation </a>
-                                <ul class="sub-menu list-unstyled">
-                                    <li><a href="#"> All Conversation </a></li>
-                                    <li><a href="#">Another action</a></li>
-                                    <li><a href="#">Something else here</a></li>
-                                    <li><a href="#">Separated link</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </div>
                     <div class="member-list">
                         <ul class="list-unstyled">
+                            @for(id <- roomIDs) {
+                                <li class="left clearfix" id="@id">
+                                    <span class="chat-img pull-left">
+                                        <img src='@routes.Assets.versioned("images/conversation.jpeg")'
+                                             alt="User Avatar"
+                                             class="img-circle"
+                                        >
+                                    </span>
+                                    <div class="chat-body clearfix">
+                                        <div class="header_sec">
+                                            <strong class="primary-font">@id</strong> <strong class="pull-right ">
+                                            09:45AM</strong>
+                                        </div>
+                                        <div class="contact_sec">
+                                            <strong class="primary-font">(123) 123-456</strong>
+                                            <span class="badge pull-right">3</span>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -50,8 +53,10 @@
             <div class="col-sm-9 message-section">
                 <div class="row">
                     <div class="new-message-head">
-                        <div class="pull-left">
-                            <button><i class="fa fa-plus-square-o" aria-hidden="true"></i> New Message</button>
+                        <div class="pull-left" id="new-conversation">
+                            <button><i class="fa fa-plus-square-o" aria-hidden="true"></i>
+                                New Conversation
+                            </button>
                         </div>
                         <div class="pull-right">
                             <div class="dropdown">
@@ -61,32 +66,30 @@
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                                    <li><a href="#">Action</a></li>
-                                    <li><a href="#">Profile</a></li>
                                     <li><a href="/logout">Log out</a></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
-
                     <div class="chat-area">
-                        <ul class="list-unstyled">
+                        <ul class="list-unstyled" id="chat-list">
                         </ul>
                     </div><!--chat-area-->
                     <div class="message-write">
                         <div class="checkbox pull-left">
                             <label><input type="checkbox" id="typeMath">Type math</label>
                         </div>
-                        <a href="#" class="pull-right btn btn-primary">
-                            <i class="fa fa-cloud-upload" aria-hidden="true"></i>  Add Files
+                        <a href="#" class="pull-right btn btn-primary disabled">
+                            <i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Files
                         </a>
                         <div id="input-area">
-                            <textarea class="form-control" placeholder="type a message"></textarea>
+                            <textarea class="form-control" placeholder="type a message" id="input-box"></textarea>
                         </div>
                         <div class="clearfix"></div>
                         <div class="chat-bottom">
-                            <script type="text/javascript" id="WolframAlphaScript7e13960d274c8f1ad54064e19f68b954"
-                                    src="//www.wolframalpha.com/widget/widget.jsp?id=7e13960d274c8f1ad54064e19f68b954">
+                            <script type="text/javascript"
+                                    id="WolframAlphaScriptb1c70f2b8b860dbde26035d13dc9420e"
+                                    src="//www.wolframalpha.com/widget/widget.jsp?id=b1c70f2b8b860dbde26035d13dc9420e&output=popup">
                             </script>
                         </div>
                     </div>
@@ -96,8 +99,16 @@
     </div>
 </div>
 @keyboard()
-<script type="text/javascript" src='@routes.Assets.versioned("javascripts/math-input.js")'></script>
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/chat.js")'></script>
+<script type="text/javascript">
+    // tell MathJax to recognize inline math by $ $
+    MathJax.Hub.Config({
+        tex2jax: {inlineMath: [["$","$"]]}
+      });
+
+    // initialize the UI
+    init("@websocketURL", "@username");
+
+    $('.chat-area').scrollTop($('.chat-area')[0].scrollHeight);
+</script>
 }
-
-
-

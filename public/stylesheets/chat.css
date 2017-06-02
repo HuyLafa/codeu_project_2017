@@ -150,7 +150,7 @@
 }
 .chat-area {
   float: left;
-  height: 500px;
+  height: 370px;
   overflow-x: hidden;
   overflow-y: auto;
   width: 100%;
@@ -169,7 +169,7 @@
   background: #fbf9fa none repeat scroll 0 0;
   padding: 10px;
 }
-.chat-area .admin_chat .chat-body1 {
+.chat-area .other_chat .chat-body1 {
   margin-left: 0;
   margin-right: 50px;
 }
@@ -185,7 +185,7 @@
 
 .message-write textarea.form-control {
   padding: 10px;
-  height: 52px;
+  height: 40px;
 }
 .chat-bottom {
   float: left;
@@ -238,7 +238,7 @@
   padding: 5px 0px 5px 0px;
   width: 100%;
   left: 0px;
-  bottom: 0px;
+  bottom: 0;
   display: none;
 }
 
@@ -432,6 +432,12 @@ ul.errorlist.nonfield {
   .desktop {
     display: block;
   }
+}
+
+.disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.6;
 }
 
 /* Overwrite default WolframAlpha widget size
