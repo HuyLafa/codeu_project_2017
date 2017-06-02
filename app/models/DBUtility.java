@@ -58,20 +58,20 @@ public class DBUtility {
    * @return the saved password or <tt>null</tt> if username does not exist.
    */
   public static String getPasswordFromUsername(Connection conn, String username) {
+    String password = null;
     try {
       String query = "SELECT password FROM Users WHERE name = ?";
       PreparedStatement getPassword = conn.prepareStatement(query);
       getPassword.setString(1, username);
       ResultSet queryResult = getPassword.executeQuery();
       if (queryResult.next()) {
-        String password = queryResult.getString("password");
-        conn.close();
-        return password;
+        password = queryResult.getString("password");
       }
+      conn.close();
     } catch (SQLException e) {
       LOG.error("error looking up password");
     }
-    return null;
+    return password;
   }
 
 
@@ -93,24 +93,22 @@ public class DBUtility {
    * @return the uuid string or <tt>null</tt> if <tt>name</tt> does not exist.
    */
   public static String getUuidFromName(Connection conn, String table, String name) {
+    String uuid = null;
     try {
       String sqlQuery = "SELECT uuid FROM " + table + " WHERE name = ?";
       PreparedStatement getID = conn.prepareStatement(sqlQuery);
       getID.setString(1, name);
       ResultSet queryResult = getID.executeQuery();
       if (queryResult.next()) {
-        String uuid = queryResult.getString("UUID");
-        getID.close();
-        conn.close();
-        return uuid;
-      } else {
-        conn.close();
-        return null;
+        uuid = queryResult.getString("UUID");
       }
+      getID.close();
+      conn.close();
     } catch (SQLException e) {
-      LOG.error("Error in database query: " + e);
-      return null;
+      LOG.error("Error in database query");
+      e.printStackTrace();
     }
+    return uuid;
   }
 
   /**
@@ -212,9 +210,8 @@ public class DBUtility {
       conn.close();
     } catch (SQLException e) {
       LOG.error("error retrieving chatroom names");
-    } finally {
-      return result;
     }
+    return result;
   }
 
   /**
@@ -258,22 +255,22 @@ public class DBUtility {
    * @param password the input password.
    * @return an instance of <tt>User</tt>.
    */
-  public static User addUser(Connection conn, String username, String password) {
+  public static int addUser(Connection conn, String username, String password, String uuid) {
+    int rowsChanged = 0;
     try {
-      User user = Models.newUser(username);
       String insertQuery = "INSERT OR IGNORE INTO users(uuid, name, password) VALUES(?, ?, ?)";
       PreparedStatement insert = conn.prepareStatement(insertQuery);
-      insert.setString(1, user.id.toString());
+      insert.setString(1, uuid);
       insert.setString(2, username);
       insert.setString(3, password);
-      insert.executeUpdate();
+      rowsChanged = insert.executeUpdate();
       insert.close();
       conn.close();
-      return user;
     } catch (SQLException e) {
       LOG.error("error adding user to database");
-      return null;
+      e.printStackTrace();
     }
+    return rowsChanged;
   }
 
   /**
@@ -283,8 +280,8 @@ public class DBUtility {
    * @param password the input password.
    * @return an instance of <tt>User</tt>.
    */
-  public static User addUser(Database db, String username, String password) {
-    return addUser(db.getConnection(), username, password);
+  public static int addUser(Database db, String username, String password, String uuid) {
+    return addUser(db.getConnection(), username, password, uuid);
   }
 
   /**
@@ -292,17 +289,19 @@ public class DBUtility {
    * @param conn the databse connection.
    * @param title the name of the chatroom.
    */
-  public static void addConversation(Connection conn, String title) {
+  public static int addConversation(Connection conn, String title) {
+    int rowsChanged = 0;
     try {
       String sqlQuery = "INSERT OR IGNORE INTO chatrooms(name) VALUES (?)";
       PreparedStatement insert = conn.prepareStatement(sqlQuery);
       insert.setString(1, title);
-      insert.executeUpdate();
+      rowsChanged = insert.executeUpdate();
       insert.close();
       conn.close();
     } catch (SQLException e) {
       LOG.error("Error adding conversation to database " + e);
     }
+    return rowsChanged;
   }
 
   /**
@@ -310,8 +309,8 @@ public class DBUtility {
    * @param db the database instance.
    * @param title the name of the chatroom.
    */
-  public static void addConversation(Database db, String title) {
-    addConversation(db.getConnection(), title);
+  public static int addConversation(Database db, String title) {
+    return addConversation(db.getConnection(), title);
   }
 
 }

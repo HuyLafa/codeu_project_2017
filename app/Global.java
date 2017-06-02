@@ -1,6 +1,7 @@
 import codeu.chat.ServerMain;
 import codeu.chat.common.User;
 import models.DBUtility;
+import models.Models;
 import play.GlobalSettings;
 import play.Application;
 
@@ -38,7 +39,8 @@ public class Global extends GlobalSettings {
       boolean adminExists = DBUtility.checkDuplicateField(DriverManager.getConnection(url), "users", "name", "admin");
       if (!adminExists) {
         // create a default admin account
-        User admin = DBUtility.addUser(DriverManager.getConnection(url), "admin", "123456");
+        User admin = Models.newUser("admin");
+        DBUtility.addUser(DriverManager.getConnection(url), "admin", "123456", admin.id.toString());
       }
 
       // create two default public rooms

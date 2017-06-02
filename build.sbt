@@ -13,7 +13,8 @@ libraryDependencies ++= Seq(
   "org.xerial" % "sqlite-jdbc" % "3.8.6",
   "com.typesafe.play" %% "play-slick" % "2.0.0",
   evolutions,
-  "com.typesafe.play" %% "play-json" % "2.5.10"
+  "com.typesafe.play" %% "play-json" % "2.5.10",
+  javaJdbc % Test
 )
 
 fork in run := false

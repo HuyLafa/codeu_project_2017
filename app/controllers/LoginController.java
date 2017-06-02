@@ -3,6 +3,8 @@ package controllers;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import codeu.chat.common.User;
+import models.Models;
 import play.mvc.Result;
 import play.mvc.Controller;
 import play.data.FormFactory;
@@ -63,7 +65,8 @@ public class LoginController extends Controller {
       }
 
       // add user to the database
-      DBUtility.addUser(db, username, password);
+      User newUser = Models.newUser(username);
+      DBUtility.addUser(db, username, password, newUser.id.toString());
       flash("success", "Create account successfully. Please log in.");
       return redirect(routes.LoginController.display());
 
