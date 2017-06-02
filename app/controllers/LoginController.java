@@ -5,6 +5,9 @@ import javax.inject.Singleton;
 
 import codeu.chat.common.User;
 import models.Models;
+import models.UserForm;
+
+import play.data.Form;
 import play.mvc.Result;
 import play.mvc.Controller;
 import play.data.FormFactory;
@@ -48,15 +51,16 @@ public class LoginController extends Controller {
    * @return the login page with the output message (success / error)
    */
   public Result createAccount() {
-    DynamicForm formData = formFactory.form().bindFromRequest();
+    Form<UserForm> formData = formFactory.form(UserForm.class).bindFromRequest();
     if (formData.hasErrors()) {
       // don't call formData.get() when there are errors, pass 'null' to helpers instead
-      flash("error", "Errors with log-in information");
+      flash("error", "Error: Username must be nonempty and password must be at least 6 characters long.");
       return badRequest(login.render());
     } else {
       // extract the form data
-      String username = formData.get("username");
-      String password = formData.get("password");
+      UserForm user = formData.bindFromRequest().get();
+      String username = user.getUsername();
+      String password = user.getPassword();
 
       // check duplicate
       if (DBUtility.checkDuplicateField(db, "users", "name", username)) {
