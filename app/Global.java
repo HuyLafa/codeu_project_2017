@@ -30,7 +30,7 @@ public class Global extends GlobalSettings {
 
     // connect to the database
     try {
-      String url = "jdbc:sqlite:./conf/chatapp.db";
+      String url = "jdbc:sqlite:chatapp.db";
       String driver = "org.sqlite.JDBC";
       Class.forName(driver);
 

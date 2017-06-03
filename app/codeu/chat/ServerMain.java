@@ -101,7 +101,6 @@ public final class ServerMain {
     final Server server = new Server(id, secret, relay);
 
     LOG.info("Created server.");
-    isRunning = true;
 
     while (true) {
 
