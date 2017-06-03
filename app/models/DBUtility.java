@@ -302,7 +302,7 @@ public class DBUtility {
       // make the public room accessible
       insertQuery = "INSERT OR IGNORE INTO room_permissions(roomname, user) VALUES(?, ?)";
       insert = conn.prepareStatement(insertQuery);
-      insert.setShort(1, "public");
+      insert.setString(1, "public");
       insert.setString(2, username);
       insert.executeUpdate();
 

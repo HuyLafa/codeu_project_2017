@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.OK;
 
 /**
- * Limited functional testing to ensure health checks of build
+ * Test WebSockets in ChatController
  */
 public class ChatControllerTest extends WithServer {
 
