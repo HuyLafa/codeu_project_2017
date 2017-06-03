@@ -6,8 +6,6 @@ import play.GlobalSettings;
 import play.Application;
 
 import java.sql.DriverManager;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Play's Global class, which runs custom code when the application starts / ends.
@@ -19,14 +17,6 @@ public class Global extends GlobalSettings {
    * @param app this application.
    */
   public void onStart(Application app) {
-
-    // run "sh run_server.sh" in background
-    ExecutorService service = Executors.newFixedThreadPool(4);
-    service.submit(new Runnable() {
-      public void run() {
-        ServerMain.runServer();
-      }
-    });
 
     // connect to the database
     try {
@@ -44,6 +34,7 @@ public class Global extends GlobalSettings {
 
       // create a default public room
       DBUtility.addConversation(DriverManager.getConnection(url), "public", "admin");
+      DBUtility.makeRoomPublic(DriverManager.getConnection(url), "public");
 
     } catch (Exception e) {
       e.printStackTrace();
