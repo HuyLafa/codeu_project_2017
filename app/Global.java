@@ -4,6 +4,9 @@ import models.DBUtility;
 import models.Models;
 import play.GlobalSettings;
 import play.Application;
+import play.db.Database;
+import play.db.Databases;
+import play.db.evolutions.Evolutions;
 
 import java.sql.DriverManager;
 
@@ -11,6 +14,10 @@ import java.sql.DriverManager;
  * Play's Global class, which runs custom code when the application starts / ends.
  */
 public class Global extends GlobalSettings {
+
+  String url = "jdbc:sqlite:chatapp.db";
+  String driver = "org.sqlite.JDBC";
+  Database db = Databases.createFrom(driver, url);
 
   /**
    * Setting up the application when it starts by adding default user and chatrooms to the database.
@@ -20,17 +27,12 @@ public class Global extends GlobalSettings {
 
     // connect to the database
     try {
-      String url = "jdbc:sqlite:chatapp.db";
-      String driver = "org.sqlite.JDBC";
       Class.forName(driver);
+      Evolutions.applyEvolutions(db);
 
-      // set up initial database if it's empty
-      boolean adminExists = DBUtility.checkDuplicateField(DriverManager.getConnection(url), "users", "name", "admin");
-      if (!adminExists) {
-        // create a default admin account
-        User admin = Models.newUser("admin");
-        DBUtility.addUser(DriverManager.getConnection(url), "admin", "123456", admin.id.toString());
-      }
+      // set up initial database
+      User admin = Models.newUser("admin");
+      DBUtility.addUser(DriverManager.getConnection(url), "admin", "123456", admin.id.toString());
 
       // create a default public room
       DBUtility.addConversation(DriverManager.getConnection(url), "public", "admin");
@@ -39,5 +41,9 @@ public class Global extends GlobalSettings {
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  public void onStop(Application app) {
+    Evolutions.cleanupEvolutions(db);
   }
 }

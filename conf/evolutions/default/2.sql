@@ -19,6 +19,8 @@ CREATE TABLE room_permissions (
   'user' VARCHAR
 );
 
+CREATE UNIQUE INDEX permission ON room_permissions('roomname', 'user');
+
 # --- !Downs
 DROP TABLE chatrooms;
 DROP TABLE messages;
