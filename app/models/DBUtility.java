@@ -6,6 +6,7 @@ import play.db.Database;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by HuyNguyen on 5/29/17.
@@ -305,18 +306,24 @@ public class DBUtility {
     }
   }
 
-  public static void addUserToRoom(Connection conn, String roomname, String user) {
-    try {
-      String sqlQuery = "INSERT INTO room_permissions(roomname, user) VALUES (?, ?)";
-      PreparedStatement insert = conn.prepareStatement(sqlQuery);
-      insert.setString(1, roomname);
-      insert.setString(2, user);
-      insert.executeUpdate();
-      insert.close();
-      conn.close();
-    } catch (SQLException e) {
-      LOG.error("Error adding conversation to database " + e);
-    }
+  public static void addUserToRoom(Connection conn, String roomname, String users) {
+    if (users != null) {
+      String[] usersArray = users.split(",");
+      
+        try {
+          for (String user : usersArray) {
+            String sqlQuery = "INSERT INTO room_permissions(roomname, user) VALUES (?, ?)";
+            PreparedStatement insert = conn.prepareStatement(sqlQuery);
+            insert.setString(1, roomname);
+            insert.setString(2, user);
+            insert.executeUpdate();
+            insert.close();
+          }
+          conn.close(); 
+        } catch (SQLException e) {
+          LOG.error("Error adding conversation to database " + e);
+        }
+    } 
   }
 
   public static void addUserToRoom(Database db, String roomname, String user) {
