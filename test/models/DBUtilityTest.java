@@ -68,14 +68,14 @@ public class DBUtilityTest {
   public void testAddConversation() throws SQLException {
 
     // add a general chatroom
-    assertEquals(1, DBUtility.addConversation(db, "room1"));
+    assertEquals(1, DBUtility.addConversation(db, "room1", "admin"));
     Connection conn = db.getConnection();
     String testQuery = "SELECT * FROM chatrooms WHERE name = 'room1'";
     assertTrue(conn.prepareStatement(testQuery).executeQuery().next());
     conn.close();
 
     // duplicate name does not add
-    assertEquals(0, DBUtility.addConversation(db, "room1"));
+    assertEquals(0, DBUtility.addConversation(db, "room1", "admin"));
     conn = db.getConnection();
     testQuery = "SELECT * FROM chatrooms WHERE name = 'room1'";
     ResultSet result = conn.prepareStatement(testQuery).executeQuery();
@@ -139,13 +139,13 @@ public class DBUtilityTest {
     assertEquals(0, DBUtility.getAllChatroomNames(db).size());
 
     // successful add
-    DBUtility.addConversation(db, "room1");
+    DBUtility.addConversation(db, "room1", "admin");
     assertEquals(1, DBUtility.getAllChatroomNames(db).size());
-    DBUtility.addConversation(db, "room2");
+    DBUtility.addConversation(db, "room2", "admin");
     assertEquals(2, DBUtility.getAllChatroomNames(db).size());
 
     // unsuccessful add
-    DBUtility.addConversation(db, "room2");
+    DBUtility.addConversation(db, "room2", "admin");
     assertEquals(2, DBUtility.getAllChatroomNames(db).size());
 
   }

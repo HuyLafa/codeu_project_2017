@@ -2,7 +2,7 @@
 
 CREATE TABLE chatrooms (
   'name' VARCHAR PRIMARY KEY,
-  'owner' VARCHAR
+  'owner' VARCHAR DEFAULT 'admin'
 );
 
 CREATE TABLE messages (

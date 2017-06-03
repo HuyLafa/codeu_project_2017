@@ -105,9 +105,10 @@ public class ChatController extends Controller {
     // extract parameters
     DynamicForm dynamicForm = formFactory.form().bindFromRequest();
     String roomName = dynamicForm.get("roomName");
+    String owner = session("username");
 
     // add chatroom to database
-    DBUtility.addConversation(db, roomName);
+    DBUtility.addConversation(db, roomName, owner);
     flowMap.put(roomName, createUserFlowForRoom(roomName));
     return ok(roomName);
   }

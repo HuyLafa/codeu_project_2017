@@ -289,12 +289,13 @@ public class DBUtility {
    * @param conn the databse connection.
    * @param title the name of the chatroom.
    */
-  public static int addConversation(Connection conn, String title) {
+  public static int addConversation(Connection conn, String roomname, String owner) {
     int rowsChanged = 0;
     try {
-      String sqlQuery = "INSERT OR IGNORE INTO chatrooms(name) VALUES (?)";
+      String sqlQuery = "INSERT OR IGNORE INTO chatrooms(name, owner) VALUES (?, ?)";
       PreparedStatement insert = conn.prepareStatement(sqlQuery);
-      insert.setString(1, title);
+      insert.setString(1, roomname);
+      insert.setString(2, owner);
       rowsChanged = insert.executeUpdate();
       insert.close();
       conn.close();
@@ -327,8 +328,8 @@ public class DBUtility {
    * @param db the database instance.
    * @param title the name of the chatroom.
    */
-  public static int addConversation(Database db, String title) {
-    return addConversation(db.getConnection(), title);
+  public static int addConversation(Database db, String roomname, String owner) {
+    return addConversation(db.getConnection(), roomname, owner);
   }
 
 }
