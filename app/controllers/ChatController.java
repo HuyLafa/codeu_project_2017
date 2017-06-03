@@ -83,7 +83,8 @@ public class ChatController extends Controller {
     // get the websocket URL
     Http.Request request = request();
     String url = routes.ChatController.websocket(roomName).webSocketURL(request);
-    return ok(chat.render(session("username"), url, flowMap.keySet()));
+    ArrayList<String> permittedRooms = DBUtility.getChatroomNamesForUser(db, session("username"));
+    return ok(chat.render(session("username"), url, permittedRooms));
   }
 
   /**

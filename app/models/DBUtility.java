@@ -227,6 +227,28 @@ public class DBUtility {
     return getAllChatroomNames(db.getConnection());
   }
 
+  public static ArrayList<String> getChatroomNamesForUser(Connection conn, String user) {
+    ArrayList<String> result = new ArrayList<>();
+    try {
+      PreparedStatement statement = conn.prepareStatement("SELECT roomname FROM room_permissions WHERE user = ?");
+      
+      statement.setString(1, user);
+      ResultSet names = statement.executeQuery();
+      while (names.next()) {
+        result.add(names.getString("roomname"));
+      }
+      conn.close();
+    } catch (SQLException e) {
+      LOG.error("error retrieving chatroom names");
+    } finally {
+      return result;
+    } 
+  }
+
+  public static ArrayList<String> getChatroomNamesForUser(Database db, String user) {
+    return getChatroomNamesForUser(db.getConnection(), user);
+  }
+
   /**
    * Add a message to the database (unused).
    * @param db the database instance.
