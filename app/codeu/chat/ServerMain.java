@@ -39,6 +39,10 @@ public final class ServerMain {
     runServer(args);
   }
 
+  public static void main(String[] args) {
+    runServer(args);
+  }
+
   public static void runServer(String[] args) {
 
     Logger.enableConsoleOutput();

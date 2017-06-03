@@ -6,6 +6,7 @@ import play.db.Database;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by HuyNguyen on 5/29/17.
@@ -58,20 +59,20 @@ public class DBUtility {
    * @return the saved password or <tt>null</tt> if username does not exist.
    */
   public static String getPasswordFromUsername(Connection conn, String username) {
+    String password = null;
     try {
       String query = "SELECT password FROM Users WHERE name = ?";
       PreparedStatement getPassword = conn.prepareStatement(query);
       getPassword.setString(1, username);
       ResultSet queryResult = getPassword.executeQuery();
       if (queryResult.next()) {
-        String password = queryResult.getString("password");
-        conn.close();
-        return password;
+        password = queryResult.getString("password");
       }
+      conn.close();
     } catch (SQLException e) {
       LOG.error("error looking up password");
     }
-    return null;
+    return password;
   }
 
 
@@ -93,24 +94,22 @@ public class DBUtility {
    * @return the uuid string or <tt>null</tt> if <tt>name</tt> does not exist.
    */
   public static String getUuidFromName(Connection conn, String table, String name) {
+    String uuid = null;
     try {
       String sqlQuery = "SELECT uuid FROM " + table + " WHERE name = ?";
       PreparedStatement getID = conn.prepareStatement(sqlQuery);
       getID.setString(1, name);
       ResultSet queryResult = getID.executeQuery();
       if (queryResult.next()) {
-        String uuid = queryResult.getString("UUID");
-        getID.close();
-        conn.close();
-        return uuid;
-      } else {
-        conn.close();
-        return null;
+        uuid = queryResult.getString("UUID");
       }
+      getID.close();
+      conn.close();
     } catch (SQLException e) {
-      LOG.error("Error in database query: " + e);
-      return null;
+      LOG.error("Error in database query");
+      e.printStackTrace();
     }
+    return uuid;
   }
 
   /**
@@ -123,7 +122,6 @@ public class DBUtility {
   public static String getUuidFromName(Database db, String table, String name) {
     return getUuidFromName(db.getConnection(), table, name);
   }
-
 
   /**
    * Get the name saved in the database from the input uuid string.
@@ -212,9 +210,8 @@ public class DBUtility {
       conn.close();
     } catch (SQLException e) {
       LOG.error("error retrieving chatroom names");
-    } finally {
-      return result;
     }
+    return result;
   }
 
   /**
@@ -224,6 +221,38 @@ public class DBUtility {
    */
   public static ArrayList<String> getAllChatroomNames(Database db) {
     return getAllChatroomNames(db.getConnection());
+  }
+
+  /**
+   * Get all the chatrooms that are visible to a user.
+   * @param conn the database connection.
+   * @param user the user's name.
+   * @return a list of names of chatrooms that the user can join.
+   */
+  public static ArrayList<String> getChatroomNamesForUser(Connection conn, String user) {
+    ArrayList<String> result = new ArrayList<>();
+    try {
+      PreparedStatement statement = conn.prepareStatement("SELECT roomname FROM room_permissions WHERE user = ?");
+      statement.setString(1, user);
+      ResultSet names = statement.executeQuery();
+      while (names.next()) {
+        result.add(names.getString("roomname"));
+      }
+      conn.close();
+    } catch (SQLException e) {
+      LOG.error("error retrieving chatroom names");
+    }
+    return result;
+  }
+
+  /**
+   * Get all the chatrooms that are visible to a user.
+   * @param db the database instance.
+   * @param user the user's name.
+   * @return a list of names of chatrooms that the user can join.
+   */
+  public static ArrayList<String> getChatroomNamesForUser(Database db, String user) {
+    return getChatroomNamesForUser(db.getConnection(), user);
   }
 
   /**
@@ -258,22 +287,32 @@ public class DBUtility {
    * @param password the input password.
    * @return an instance of <tt>User</tt>.
    */
-  public static User addUser(Connection conn, String username, String password) {
+  public static int addUser(Connection conn, String username, String password, String uuid) {
+    int rowsChanged = 0;
     try {
-      User user = Models.newUser(username);
+      // add user to users table
       String insertQuery = "INSERT OR IGNORE INTO users(uuid, name, password) VALUES(?, ?, ?)";
       PreparedStatement insert = conn.prepareStatement(insertQuery);
-      insert.setString(1, user.id.toString());
+      insert.setString(1, uuid);
       insert.setString(2, username);
       insert.setString(3, password);
+      rowsChanged = insert.executeUpdate();
+      insert.close();
+
+      // make the public room accessible
+      insertQuery = "INSERT OR IGNORE INTO room_permissions(roomname, user) VALUES(?, ?)";
+      insert = conn.prepareStatement(insertQuery);
+      insert.setString(1, "public");
+      insert.setString(2, username);
       insert.executeUpdate();
+
       insert.close();
       conn.close();
-      return user;
     } catch (SQLException e) {
       LOG.error("error adding user to database");
-      return null;
+      e.printStackTrace();
     }
+    return rowsChanged;
   }
 
   /**
@@ -283,8 +322,8 @@ public class DBUtility {
    * @param password the input password.
    * @return an instance of <tt>User</tt>.
    */
-  public static User addUser(Database db, String username, String password) {
-    return addUser(db.getConnection(), username, password);
+  public static int addUser(Database db, String username, String password, String uuid) {
+    return addUser(db.getConnection(), username, password, uuid);
   }
 
   /**
@@ -292,17 +331,30 @@ public class DBUtility {
    * @param conn the databse connection.
    * @param title the name of the chatroom.
    */
-  public static void addConversation(Connection conn, String title) {
+  public static int addConversation(Connection conn, String roomname, String owner) {
+    int rowsChanged = 0;
     try {
-      String sqlQuery = "INSERT OR IGNORE INTO chatrooms(name) VALUES (?)";
+      // add a new room to chatrooms
+      String sqlQuery = "INSERT OR IGNORE INTO chatrooms(name, owner) VALUES (?, ?)";
       PreparedStatement insert = conn.prepareStatement(sqlQuery);
-      insert.setString(1, title);
+      insert.setString(1, roomname);
+      insert.setString(2, owner);
+      rowsChanged = insert.executeUpdate();
+      insert.close();
+
+      // add permission for owner
+      sqlQuery = "INSERT OR IGNORE INTO room_permissions(roomname, user) VALUES (?, ?)";
+      insert = conn.prepareStatement(sqlQuery);
+      insert.setString(1, roomname);
+      insert.setString(2, owner);
       insert.executeUpdate();
+
       insert.close();
       conn.close();
     } catch (SQLException e) {
       LOG.error("Error adding conversation to database " + e);
     }
+    return rowsChanged;
   }
 
   /**
@@ -310,8 +362,71 @@ public class DBUtility {
    * @param db the database instance.
    * @param title the name of the chatroom.
    */
-  public static void addConversation(Database db, String title) {
-    addConversation(db.getConnection(), title);
+  public static int addConversation(Database db, String roomname, String owner) {
+    return addConversation(db.getConnection(), roomname, owner);
   }
+
+  /**
+   * Make a room accessible to a list of users.
+   * @param conn the database connection.
+   * @param roomname the name of the room.
+   * @param usersArray a list of users that are granted access to the room.
+   */
+  public static void addUsersToRoom(Connection conn, String roomname, String[] usersArray) {
+    try {
+      for (String user : usersArray) {
+        String sqlQuery = "INSERT OR IGNORE INTO room_permissions(roomname, user) VALUES (?, ?)";
+        PreparedStatement insert = conn.prepareStatement(sqlQuery);
+        insert.setString(1, roomname);
+        insert.setString(2, user);
+        insert.executeUpdate();
+        insert.close();
+      }
+      conn.close();
+    } catch (SQLException e) {
+      LOG.error("Error adding conversation to database " + e);
+    }
+  }
+
+  /**
+   * Make a room accessible to a list of users.
+   * @param db the database instance.
+   * @param roomname the name of the room.
+   * @param usersArray a list of users that are granted access to the room.
+   */
+  public static void addUsersToRoom(Database db, String roomname, String[] usersArray) {
+    addUsersToRoom(db.getConnection(), roomname, usersArray);
+  }
+
+
+  /**
+   * Make a room accessible to all users.
+   * @param conn the database connection.
+   * @param roomname the name of the room.
+   */
+  public static void makeRoomPublic(Connection conn, String roomname) {
+    try {
+      // get all usernames
+      ArrayList<String> allUsernames = new ArrayList<>();
+      String query = "SELECT name FROM users";
+      ResultSet allNames = conn.prepareStatement(query).executeQuery();
+      while (allNames.next()) {
+        allUsernames.add(allNames.getString("name"));
+      }
+      addUsersToRoom(conn, roomname, allUsernames.toArray(new String[allUsernames.size()]));
+    } catch (SQLException e) {
+      LOG.error("Error getting all usernames");
+    }
+  }
+
+  /**
+   * Make a room accessible to all users.
+   * @param db the database instance.
+   * @param roomname the name of the room.
+   */
+  public static void makeRoomPublic(Database db, String roomname) {
+    makeRoomPublic(db.getConnection(), roomname);
+  }
+
 
 }

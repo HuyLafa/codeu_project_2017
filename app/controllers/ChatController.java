@@ -83,7 +83,8 @@ public class ChatController extends Controller {
     // get the websocket URL
     Http.Request request = request();
     String url = routes.ChatController.websocket(roomName).webSocketURL(request);
-    return ok(chat.render(session("username"), url, flowMap.keySet()));
+    ArrayList<String> permittedRooms = DBUtility.getChatroomNamesForUser(db, session("username"));
+    return ok(chat.render(session("username"), url, permittedRooms));
   }
 
   /**
@@ -105,15 +106,30 @@ public class ChatController extends Controller {
     // extract parameters
     DynamicForm dynamicForm = formFactory.form().bindFromRequest();
     String roomName = dynamicForm.get("roomName");
+    String owner = session("username");
 
     // add chatroom to database
-    DBUtility.addConversation(db, roomName);
+    DBUtility.addConversation(db, roomName, owner);
     flowMap.put(roomName, createUserFlowForRoom(roomName));
     return ok(roomName);
   }
+  /**
+  * Add a new user to a chat room
+  * @return the name of the user
+  */
+
+  public Result addUserToRoom() {
+    // extract parameters
+    DynamicForm dynamicForm = formFactory.form().bindFromRequest();
+    String roomname = dynamicForm.get("roomname");
+    String users = dynamicForm.get("user");
+    String[] usersArray = users.split(",");
+    DBUtility.addUsersToRoom(db, roomname, usersArray);
+    return ok();
+  }
 
   /**
-   * Add a new message.
+   * Add a new message (unused).
    * @return an OK status.
    */
   public Result newMessage() {

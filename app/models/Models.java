@@ -1,15 +1,15 @@
 package models;
 
-import codeu.chat.common.Conversation;
 import codeu.chat.common.NetworkCode;
 import codeu.chat.common.User;
 import codeu.chat.util.Logger;
 import codeu.chat.util.RemoteAddress;
 import codeu.chat.util.Serializers;
-import codeu.chat.util.Uuid;
 import codeu.chat.util.connections.ClientConnectionSource;
 import codeu.chat.util.connections.ConnectionSource;
-import controllers.LoginController;
+import codeu.chat.util.connections.Connection;
+
+import java.io.IOException;
 
 /**
  * Created by HuyNguyen on 5/29/17.
@@ -20,7 +20,7 @@ public class Models {
   private static final Logger.Log LOG = Logger.newLog(Models.class);
 
   // the source that connects to the server.
-  public static final ConnectionSource source = establishSource();
+  public static ConnectionSource source = establishSource();
 
   // the default remote address
   static final String REMOTE_ADDRESS = "localhost@2007";
@@ -29,7 +29,7 @@ public class Models {
    * Establish a connection to a server at the default remote address.
    * @return a <tt>ClientConnectionSource</tt> instance.
    */
-  private static ClientConnectionSource establishSource() {
+  public static ClientConnectionSource establishSource() {
     try {
       RemoteAddress address = RemoteAddress.parse(REMOTE_ADDRESS);
       return new ClientConnectionSource(address.host, address.port);
@@ -41,63 +41,38 @@ public class Models {
   }
 
   /**
-   * Create a new chatroom.
-   * @param title the name of the chatroom.
-   * @param owner the uuid of the user that creates this chatroom.
-   * @return an instance of <tt>Conversation</tt> containing the input information.
-   */
-  public static Conversation newConversation(String title, Uuid owner)  {
-
-    Conversation response = null;
-
-    try (final codeu.chat.util.connections.Connection connection = source.connect()) {
-      // serialize the parameters
-      Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_CONVERSATION_REQUEST);
-      Serializers.STRING.write(connection.out(), title);
-      Uuid.SERIALIZER.write(connection.out(), owner);
-
-      // send to server and deserialize response
-      if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_CONVERSATION_RESPONSE) {
-        response = Serializers.nullable(Conversation.SERIALIZER).read(connection.in());
-      } else {
-        System.out.println("Response from server failed.");
-      }
-    } catch (Exception ex) {
-      System.out.println("ERROR: Exception during call on server. Check log for details.");
-      LOG.error(ex, "Exception during call on server.");
-    }
-    System.out.println("return response" + response);
-    return response;
-  }
-
-  /**
-   * Create a new user.
+   * Create a new user. This is the same method in codeu.chat.server.Controller
    * @param name the username.
    * @return an instance of <tt>User</tt> containing the input information.
    */
-  public static User newUser(String name) {
+  public static User newUser(Connection connection, String name) throws IOException {
 
     User response = null;
 
-    try (final codeu.chat.util.connections.Connection connection = source.connect()) {
+    // serialize the parameters
+    Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_USER_REQUEST);
+    Serializers.STRING.write(connection.out(), name);
+    LOG.info("newUser: Request completed.");
 
-      // serialize the parameters
-      Serializers.INTEGER.write(connection.out(), NetworkCode.NEW_USER_REQUEST);
-      Serializers.STRING.write(connection.out(), name);
-      LOG.info("newUser: Request completed.");
+    // send to server and deserialize response
+    if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_USER_RESPONSE) {
+      response = Serializers.nullable(User.SERIALIZER).read(connection.in());
+      LOG.info("newUser: Response completed.");
+    } else {
+      LOG.error("Response from server failed.");
+    }
 
-      // send to server and deserialize response
-      if (Serializers.INTEGER.read(connection.in()) == NetworkCode.NEW_USER_RESPONSE) {
-        response = Serializers.nullable(User.SERIALIZER).read(connection.in());
-        LOG.info("newUser: Response completed.");
-      } else {
-        LOG.error("Response from server failed.");
-      }
+    return response;
+  }
+
+  public static User newUser(String name) {
+    User response = null;
+    try {
+      response = newUser(source.connect(), name);
     } catch (Exception ex) {
       System.out.println("ERROR: Exception during call on server. Check log for details.");
       LOG.error(ex, "Exception during call on server.");
     }
-
     return response;
   }
 }
