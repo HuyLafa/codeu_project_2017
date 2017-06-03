@@ -28,9 +28,9 @@ function init(websocket, user) {
   // add conversation
   $('#new-conversation').on("click", function() {
     var roomName = prompt("Please enter the room name");
-    var user = prompt("Enter the username of a person who can enter your private chatroom: ");
-    if (user != null) {
-      $.post('/add-user-to-room', {'roomname': roomName, 'user' : user})
+    var users = prompt("Enter the usernames of people who can enter your private chatroom: ");
+    if (users != null) {
+      $.post('/add-user-to-room', {'roomname': roomName, 'user' : users})
     }
     if (roomName != null) {
       $.post(`/new-conversation`, { 'roomName': roomName, 'owner' : username }, function(data) {

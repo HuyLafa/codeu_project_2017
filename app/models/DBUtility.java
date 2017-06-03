@@ -6,6 +6,7 @@ import play.db.Database;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by HuyNguyen on 5/29/17.
@@ -223,6 +224,28 @@ public class DBUtility {
     return getAllChatroomNames(db.getConnection());
   }
 
+  public static ArrayList<String> getChatroomNamesForUser(Connection conn, String user) {
+    ArrayList<String> result = new ArrayList<>();
+    try {
+      PreparedStatement statement = conn.prepareStatement("SELECT roomname FROM room_permissions WHERE user = ?");
+      
+      statement.setString(1, user);
+      ResultSet names = statement.executeQuery();
+      while (names.next()) {
+        result.add(names.getString("roomname"));
+      }
+      conn.close();
+    } catch (SQLException e) {
+      LOG.error("error retrieving chatroom names");
+    } finally {
+      return result;
+    } 
+  }
+
+  public static ArrayList<String> getChatroomNamesForUser(Database db, String user) {
+    return getChatroomNamesForUser(db.getConnection(), user);
+  }
+
   /**
    * Add a message to the database (unused).
    * @param db the database instance.
@@ -305,18 +328,24 @@ public class DBUtility {
     return rowsChanged;
   }
 
-  public static void addUserToRoom(Connection conn, String roomname, String user) {
-    try {
-      String sqlQuery = "INSERT INTO room_permissions(roomname, user) VALUES (?, ?)";
-      PreparedStatement insert = conn.prepareStatement(sqlQuery);
-      insert.setString(1, roomname);
-      insert.setString(2, user);
-      insert.executeUpdate();
-      insert.close();
-      conn.close();
-    } catch (SQLException e) {
-      LOG.error("Error adding conversation to database " + e);
-    }
+  public static void addUserToRoom(Connection conn, String roomname, String users) {
+    if (users != null) {
+      String[] usersArray = users.split(",");
+      
+        try {
+          for (String user : usersArray) {
+            String sqlQuery = "INSERT INTO room_permissions(roomname, user) VALUES (?, ?)";
+            PreparedStatement insert = conn.prepareStatement(sqlQuery);
+            insert.setString(1, roomname);
+            insert.setString(2, user);
+            insert.executeUpdate();
+            insert.close();
+          }
+          conn.close(); 
+        } catch (SQLException e) {
+          LOG.error("Error adding conversation to database " + e);
+        }
+    } 
   }
 
   public static void addUserToRoom(Database db, String roomname, String user) {
