@@ -122,15 +122,14 @@ public class ChatController extends Controller {
     // extract parameters
     DynamicForm dynamicForm = formFactory.form().bindFromRequest();
     String roomname = dynamicForm.get("roomname");
-    String user = dynamicForm.get("user");
-
-    DBUtility.addUserToRoom(db, roomname, user);
+    String users = dynamicForm.get("user");
+    String[] usersArray = users.split(",");
+    DBUtility.addUsersToRoom(db, roomname, usersArray);
     return ok();
-
   }
 
   /**
-   * Add a new message.
+   * Add a new message (unused).
    * @return an OK status.
    */
   public Result newMessage() {
