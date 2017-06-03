@@ -22,5 +22,7 @@ POST    /new-message                controllers.ChatController.newMessage
 
 POST    /new-conversation           controllers.ChatController.newConversation
 
+POST	/add-user-to-room			controllers.ChatController.addUserToRoom
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
