@@ -20,6 +20,8 @@ CREATE TABLE room_permissions (
 );
 
 CREATE UNIQUE INDEX permission ON room_permissions('roomname', 'user');
+INSERT INTO chatrooms('name', 'owner') VALUES('public', 'admin');
+INSERT INTO room_permissions('roomname', 'user') VALUES ('public', 'admin');
 
 # --- !Downs
 DROP TABLE chatrooms;

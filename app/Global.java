@@ -34,10 +34,6 @@ public class Global extends GlobalSettings {
       User admin = Models.newUser("admin");
       DBUtility.addUser(DriverManager.getConnection(url), "admin", "123456", admin.id.toString());
 
-      // create a default public room
-      DBUtility.addConversation(DriverManager.getConnection(url), "public", "admin");
-      DBUtility.makeRoomPublic(DriverManager.getConnection(url), "public");
-
     } catch (Exception e) {
       e.printStackTrace();
     }
